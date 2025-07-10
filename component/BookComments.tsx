@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, RefObject} from "react";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { RxAvatar } from "react-icons/rx";
 import { BiLike } from "react-icons/bi";
@@ -8,12 +8,17 @@ import { insertReplyRecursive } from "@/lib/insertReplyRecursive";
 import BookApi from "@/api/book";
 import toast from "react-hot-toast";
 import { timeAgo } from "@/lib/CalculateTime";
+import { RepliesCount } from "@/lib/CalculateCommentsCount";
+import { RiArrowDownWideFill } from "react-icons/ri";
+import { RiArrowUpWideLine } from "react-icons/ri";
+import LikeOrCollectApi from "@/api/like_or_collect";
 interface BookCommentPros {
   bookId: number | null
   bookComments: GetCommentResponse[],
-  setBookComments: React.Dispatch<React.SetStateAction<GetCommentResponse[]>>
+  setBookComments: React.Dispatch<React.SetStateAction<GetCommentResponse[]>>,
+  userId: string | undefined
 }
-const BookComments = ({ bookId, bookComments, setBookComments }: BookCommentPros) => {
+const BookComments = ({ bookId, bookComments, setBookComments, userId }: BookCommentPros) => {
 
   const [newComment, setNewcomment] = useState<CommentDataForm>({
     bookId: bookId,
@@ -25,7 +30,17 @@ const BookComments = ({ bookId, bookComments, setBookComments }: BookCommentPros
   //const [newReply, setNewReply] = useState<string>("")
   const [replyInputs, setReplyInputs] = useState<Record<number, string>>({});
   const [activeReplyId, setActiveReplyId] = useState<number>()
-
+  const [openMenuId, setOpenMenuId] = useState<number>()
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpenMenuId(undefined);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   const handleSubmit = async () => {
 
     try {
@@ -33,7 +48,7 @@ const BookComments = ({ bookId, bookComments, setBookComments }: BookCommentPros
       console.log("new comment", response.data.data)
       setBookComments(prev => [response.data.data, ...prev])
       setNewcomment(prev => ({ ...prev, content: "" }))
-      setIsFocused(prev=>!prev)
+      setIsFocused(prev => !prev)
       toast.success(response.data.message)
     } catch (err: any) {
       if (err.response?.status === 401) {
@@ -50,26 +65,28 @@ const BookComments = ({ bookId, bookComments, setBookComments }: BookCommentPros
 
     const content = replyInputs[activeReplyId];
     if (!content?.trim()) return;
- try{
-    const replyResponse = await BookApi.createReply({
-      bookId: bookId,
-      content: content,
-      parentCommentId: activeReplyId
-    })
-    console.log("reply", replyResponse.data.data)
-    const createdReply = replyResponse.data.data;
-    setBookComments(prev => insertReplyRecursive(prev, activeReplyId, createdReply))
-    setReplyInputs(prev => ({ ...prev, [activeReplyId]: "" }))
-    setActiveReplyId(undefined)
-  }catch(err:any){
-    if (err.response?.status === 401) {
-      toast.error("Please log in first.");
-    } else {
-      toast.error("Something went wrong. Please try again.");
+    try {
+      const replyResponse = await BookApi.createReply({
+        bookId: bookId,
+        content: content,
+        parentCommentId: activeReplyId
+      })
+      console.log("reply", replyResponse.data.data)
+      const createdReply = replyResponse.data.data;
+      setBookComments(prev => insertReplyRecursive(prev, activeReplyId, createdReply))
+      setReplyInputs(prev => ({ ...prev, [activeReplyId]: "" }))
+      setActiveReplyId(undefined)
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        toast.error("Please log in first.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
     }
   }
-  }
-  const handleCommentLike = async () => {
+  const handleCommentLike = async (commentId: number) => {
+    const commentLikeResponse = await LikeOrCollectApi.getCurrentCommentLike(commentId)
+
 
   }
   const handleCommentDelete = async () => {
@@ -111,20 +128,20 @@ const BookComments = ({ bookId, bookComments, setBookComments }: BookCommentPros
 
       <div className="flex flex-col">
         {bookComments.map((comment) => (
-          <div className="max-w-[650px] flex mt-3">
-            <div className="flex flex-grow gap-3">
+          <div className="max-w-[650px] flex flex-col mt-3" key={comment.commentsId}>
+            <div className="flex gap-3">
               <RxAvatar className="w-7 h-7" />
               <div className="flex flex-grow flex-col gap-2">
                 <div className="flex gap-4 items-center">
                   <h3 className="text-m font-bold">@{comment.createdBy}</h3>
-                  <span className="text-sm font-bold text-gray-300">{timeAgo(comment.createdAt)}</span>
+                  <span className="text-sm font-bold text-gray-500">{timeAgo(comment.createdAt)}</span>
                 </div>
                 <div>
                   <h1>{comment.content}</h1>
                 </div>
                 <div className="flex items-center gap-8">
                   <div className="flex items-center gap-1">
-                    <BiLike />
+                    <BiLike onClick={() => handleCommentLike(comment.commentsId)} />
                     <span>0</span>
                   </div>
                   <button className="text-sm hover:font-bold"
@@ -166,24 +183,53 @@ const BookComments = ({ bookId, bookComments, setBookComments }: BookCommentPros
                     </div>
                   </div>
                 }
-                {
-                  comment.replies.length > 0 && (
-                    <CommentsReplies
-                      comment={comment}
-                      activeReplyId={activeReplyId}
-                      setActiveReplyId={setActiveReplyId}
-                      replyInputs={replyInputs}
-                      setReplyInputs={setReplyInputs}
-                      setIsReplyFocused={setIsReplyFocused}
-                      handleReplySubmit={handleReplySubmit}
-                      depth={1}
-                    />
-                  )
-                }
+              </div>
+              <div className="">
+                <HiOutlineDotsVertical
+                  className="cursor-pointer"
+                  onClick={() => setOpenMenuId(comment.commentsId)}
+                />
+                {openMenuId === comment.commentsId && (
+                  <div
+                    ref={ref}
+                    className="absolute bg-white border border-gray-300 rounded shadow-md z-10 px-2 py-1 text-sm"
+                  >
+                    <div className="flex flex-col">
+                      {comment.userId === userId && (
+                        <button onClick={() => handleCommentDelete()} className="text-black hover:font-bold">
+                          Delete
+                        </button>
+                      )}
+                      <button className="text-black hover:font-bold">
+                        Report
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="">
-              <HiOutlineDotsVertical />
+            <div className="flex flex-col ml-9 gap-2">
+              {
+                comment.replies.length > 0 && (
+                  <CommentsReplies
+                    key={comment.commentsId}
+                    comment={comment}
+                    activeReplyId={activeReplyId}
+                    setActiveReplyId={setActiveReplyId}
+                    replyInputs={replyInputs}
+                    setReplyInputs={setReplyInputs}
+                    setIsReplyFocused={setIsReplyFocused}
+                    handleReplySubmit={handleReplySubmit}
+                    handleCommentLike={handleCommentLike}
+                    openMenuId={openMenuId}
+                    setOpenMenuId={setOpenMenuId}
+                    handleCommentDelete={handleCommentDelete}
+                    popupRef={ref}
+                    userId={userId}
+                    depth={1}
+                  />
+                )
+              }
             </div>
           </div>
         )
@@ -203,81 +249,126 @@ interface CommentsRepliesPros {
   setReplyInputs: React.Dispatch<React.SetStateAction<Record<number, string>>>,
   setIsReplyFocused: React.Dispatch<React.SetStateAction<boolean>>,
   handleReplySubmit: () => void,
-  depth: number
+  handleCommentLike: (commentId: number) => void,
+  handleCommentDelete:(commentId:number)=>void,
+  openMenuId:number|undefined,
+  setOpenMenuId:React.Dispatch<React.SetStateAction<number | undefined>>
+  popupRef: RefObject<HTMLDivElement |null>;
+  userId:string|undefined,
+  depth: number,
 }
-const CommentsReplies = ({ comment, activeReplyId, setActiveReplyId, replyInputs, setReplyInputs, setIsReplyFocused, handleReplySubmit, depth }: CommentsRepliesPros) => {
+const CommentsReplies = ({ comment, activeReplyId, setActiveReplyId, replyInputs, setReplyInputs, setIsReplyFocused, handleReplySubmit, depth, handleCommentLike,handleCommentDelete, setOpenMenuId, openMenuId, popupRef,userId}: CommentsRepliesPros) => {
+  const [showMoreReplies, setShowMoreReplies] = useState<boolean>(false)
   return (
     <>
-      {comment.replies.map((reply) => (
-        <div className="flex flex-col">
-          <div className="w-full flex gap-3">
-            <RxAvatar className="w-7 h-7" />
-            <div className="flex flex-col flex-grow gap-1">
-              <div className="flex gap-4 items-center">
-                <h3 className="text-m font-bold">@{reply.createdBy}</h3>
-                <span className="text-sm text-gray-300 font-bold">{timeAgo(reply.createdAt)}</span>
-              </div>
-              <div>
-                <h1>{depth >= 2 && <span className="text-sm text-gray-600">Reply @{comment.createdBy}: </span>}{reply.content}</h1>
-              </div>
-              <div className="flex items-center gap-8">
-                <div className="flex items-center gap-1">
-                  <BiLike />
-                  <span>0</span>
+      {!showMoreReplies ? (<button className="flex items-center gap-2 text-sm hover:font-bold text-blue-500"
+        onClick={() => setShowMoreReplies(prev => !prev)}>
+        <RiArrowDownWideFill className="w-5 h-5" />{RepliesCount(comment)} replies</button>) : (
+        <>
+          <button className="flex items-center gap-2 text-sm hover:font-bold"
+            onClick={() => setShowMoreReplies(prev => !prev)}><RiArrowUpWideLine className="w-5 h-5" />{RepliesCount(comment)} replies</button>
+          {comment.replies.map((reply) => (
+            <div className="flex flex-col">
+              <div className="w-full flex gap-3">
+                <RxAvatar className="w-7 h-7" />
+                <div className="flex flex-col flex-grow gap-1">
+                  <div className="flex gap-4 items-center">
+                    <h3 className="text-m font-bold">@{reply.createdBy}</h3>
+                    <span className="text-sm text-gray-500 font-bold">{timeAgo(reply.createdAt)}</span>
+                  </div>
+                  <div>
+                    <h1>{depth >= 2 && <span className="text-sm text-gray-600">Reply @{comment.createdBy}: </span>}{reply.content}</h1>
+                  </div>
+                  <div className="flex items-center gap-8">
+                    <div className="flex items-center gap-1">
+                      <BiLike onClick={() => handleCommentLike(reply.commentsId)} />
+                      <span>0</span>
+                    </div>
+                    <button className="text-sm hover:font-bold"
+                      onClick={() => setActiveReplyId(reply.commentsId)}
+                    >Reply</button>
+                  </div>
+                  {activeReplyId == reply.commentsId &&
+                    <div className="flex gap-3">
+                      <RxAvatar className="w-7 h-7 mt-2" />
+                      <div className="flex flex-grow flex-col gap-2">
+                        <input className="px-0.5 pt-1 pb-0 border-b border-black focus:outline-none"
+                          placeholder={`@${reply.createdBy}`}
+                          value={replyInputs[reply.commentsId] || ""}
+                          onChange={(e) =>
+                            setReplyInputs((prev) => ({
+                              ...prev,
+                              [reply.commentsId]: e.target.value
+                            }))
+                          }
+                          onFocus={() => setIsReplyFocused(true)}
+                          onBlur={() => !replyInputs[reply.commentsId].trim() && setIsReplyFocused(false)}
+                        >
+                        </input>
+                        <div className="flex justify-end gap-4">
+                          <button className="text-sm hover:font-bold"
+                            onClick={() => {
+                              setActiveReplyId(undefined)
+                              setReplyInputs((prev) => ({
+                                ...prev,
+                                [reply.commentsId]: ""
+                              }))
+                            }}
+                          >Cancel</button>
+                          <button className="text-sm hover:font-bold"
+                            onClick={handleReplySubmit}
+                          >Reply</button>
+                        </div>
+                      </div>
+                    </div>
+                  }
                 </div>
-                <button className="text-sm hover:font-bold"
-                  onClick={() => setActiveReplyId(reply.commentsId)}
-                >Reply</button>
-              </div>
-              {activeReplyId == reply.commentsId &&
-                <div className="flex gap-3">
-                  <RxAvatar className="w-7 h-7 mt-2" />
-                  <div className="flex flex-grow flex-col gap-2">
-                    <input className="px-0.5 pt-1 pb-0 border-b border-black focus:outline-none"
-                      placeholder={`@${reply.createdBy}`}
-                      value={replyInputs[reply.commentsId] || ""}
-                      onChange={(e) =>
-                        setReplyInputs((prev) => ({
-                          ...prev,
-                          [reply.commentsId]: e.target.value
-                        }))
-                      }
-                      onFocus={() => setIsReplyFocused(true)}
-                      onBlur={() => !replyInputs[reply.commentsId].trim() && setIsReplyFocused(false)}
-                    >
-                    </input>
-                    <div className="flex justify-end gap-4">
-                      <button className="text-sm hover:font-bold"
-                        onClick={() => {
-                          setActiveReplyId(undefined)
-                          setReplyInputs((prev) => ({
-                            ...prev,
-                            [reply.commentsId]: ""
-                          }))
-                        }}
-                      >Cancel</button>
-                      <button className="text-sm hover:font-bold"
-                        onClick={handleReplySubmit}
-                      >Reply</button>
+                <div className="">
+                  <HiOutlineDotsVertical 
+                  className="cursor-pointer"
+                  onClick={() => setOpenMenuId(reply.commentsId)}/>
+                  {openMenuId === reply.commentsId && (
+                  <div
+                    ref={popupRef}
+                    className="absolute bg-white border border-gray-300 rounded shadow-md z-10 px-2 py-1 text-sm"
+                  >
+                    <div className="flex flex-col">
+                      {reply.userId === userId && (
+                        <button onClick={() => handleCommentDelete(reply.commentsId)} className="text-black hover:font-bold">
+                          Delete
+                        </button>
+                      )}
+                      <button className="text-black hover:font-bold">
+                        Report
+                      </button>
                     </div>
                   </div>
+                )}
                 </div>
-              }
+              </div>
+
+              {reply.replies.length > 0 &&
+                <CommentsReplies
+                  key={reply.commentsId}
+                  comment={reply}
+                  activeReplyId={activeReplyId}
+                  setActiveReplyId={setActiveReplyId}
+                  replyInputs={replyInputs}
+                  setReplyInputs={setReplyInputs}
+                  setIsReplyFocused={setIsReplyFocused}
+                  handleReplySubmit={handleReplySubmit}
+                  depth={depth + 1}
+                  handleCommentLike={handleCommentLike}
+                  handleCommentDelete={handleCommentDelete}
+                  openMenuId={openMenuId}
+                  setOpenMenuId={setOpenMenuId}
+                  popupRef={popupRef}
+                  userId={userId}
+                />}
+
             </div>
-          </div>
-          {reply.replies.length > 0 &&
-            <CommentsReplies
-              comment={reply}
-              activeReplyId={activeReplyId}
-              setActiveReplyId={setActiveReplyId}
-              replyInputs={replyInputs}
-              setReplyInputs={setReplyInputs}
-              setIsReplyFocused={setIsReplyFocused}
-              handleReplySubmit={handleReplySubmit}
-              depth={depth + 1}
-            />}
-        </div>
-      ))}
+          ))}
+        </>)}
     </>
   )
 }

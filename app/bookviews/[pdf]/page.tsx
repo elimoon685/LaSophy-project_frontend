@@ -9,6 +9,9 @@ import BookApi from "@/api/book";
 import { GetBookInfoResponse ,GetCommentResponse} from "@/inference/BookCommentResponseType";
 import LikeOrCollectApi from "@/api/like_or_collect";
 import toast from "react-hot-toast";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import { JwtPayload } from "@/inference/UserResponseType";
 const BookArea= ()=>{
     const searchParams = useSearchParams();
     const rawBookId = searchParams.get('bookId');
@@ -22,6 +25,7 @@ const BookArea= ()=>{
     const [isCollectClicked, setIsCollectClicked]=useState<boolean>(false)
     const [bookComments, setBookComments]=useState<GetCommentResponse[]>([])
     const [isLoading, setIsLoading]=useState<boolean>(false)
+    const [userId, setUserId]=useState<string>()
     useEffect(()=>{
         const fetchBooks= async ()=>{
             try{
@@ -39,7 +43,18 @@ const BookArea= ()=>{
                 console.error("Failed to fetch books", error);
             }
         }
+        const fetchUserId=()=>{
+            const token = Cookies.get("token")
+            if(token){
+                const decoded:JwtPayload = jwtDecode(token);
+                setUserId(decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"])
+            }else{
+                setUserId(undefined)
+            }
+        }
         fetchBooks();
+        fetchUserId();
+
     },[])
 
     const handleLike=async ()=>{
@@ -86,7 +101,7 @@ const BookArea= ()=>{
                   likeCount={likeCount}
                   collectCount={collectCount}
                   />
-        <BookComments bookId={bookId} bookComments={bookComments} setBookComments={setBookComments}/>
+        <BookComments bookId={bookId} bookComments={bookComments} setBookComments={setBookComments} userId={userId}/>
            </> }
         </div>
     )

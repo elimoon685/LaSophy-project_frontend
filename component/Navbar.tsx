@@ -57,7 +57,7 @@ return (
       <div className="flex items-center justify-between gap-3">
       <Image src='/logo.png' alt="logo" width={40} height={40}/>
       <div className=" text-gray-300 [font-family:'Times_New_Roman',serif] text-xl tracking-wide">
-        Welcome to Lasophy
+        Welcome to LaSophy
       </div>
       </div>
       <div className=" flex space-x-5 items-center">

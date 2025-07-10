@@ -1,4 +1,4 @@
-import { GetCommentResponse } from "@/inference/type"
+import { GetCommentResponse } from "@/inference/BookCommentResponseType"
 
 export function insertReplyRecursive(comments:GetCommentResponse[], parentId:number, reply:GetCommentResponse):GetCommentResponse[]{
 

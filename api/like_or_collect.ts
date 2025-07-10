@@ -9,7 +9,7 @@ const LikeOrCollectApi={
         apiBook.post<Response<number>>("LikeCollect/collect", {bookId:bookId}),
 
     getCurrentCommentLike:(commentId:number|undefined)=>
-        apiBook.post<Response<number>>("/LikeCollect/comment-like",commentId)
+        apiBook.post<Response<number>>("/LikeCollect/comment-like",{commentId: commentId})
 }
 
 export default LikeOrCollectApi
