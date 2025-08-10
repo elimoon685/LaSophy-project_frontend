@@ -13,11 +13,10 @@ export default function SettingsModal() {
   const closeModal = () => router.back(); // go back to profile
   const [updateInfo, setUpdateInfo]=useState<UpdateUserInfoFormData>({
     userName:"",
-    bio:""
+    bio:"",
   })
   const handleUpdateInfo=async()=>{
        const response=await ProfileApi.userInfoUpdate(updateInfo)
-       console.log("Update", response.data.data)
   }
   return (
     <div className="fixed inset-0 bg-black/10 backdrop-blur-[2px] z-50 flex justify-center items-center">
@@ -35,7 +34,7 @@ export default function SettingsModal() {
         <div className="mb-4">
         <label htmlFor="username" className="block mb-1">Username:</label>
         <input className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-               placeholder={userInfo?.userName}
+               placeholder={userInfo.userName?? undefined}
                value={updateInfo.userName}
                onChange={(e)=>setUpdateInfo({...updateInfo, userName:e.target.value})}
          ></input>

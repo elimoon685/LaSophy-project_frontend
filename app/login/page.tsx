@@ -1,13 +1,12 @@
 'use client'
 import Link from 'next/link';
 import { LoginFormData } from '@/inference/UserRequestType';
-import {apiClient} from '@/lib/apiClient';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Cookies from 'js-cookie';
-import { useFormState } from 'react-dom';
 import SwitchBox from '@/component/switchBox';
 import Authapi from '@/api/login';
+import toast from "react-hot-toast";
 const Login=()=>{
     const router=useRouter();
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -25,24 +24,21 @@ const Login=()=>{
     const handleSubmit=async (e:React.FormEvent)=>{
         e.preventDefault();
      try{
-        console.log("data",loginData)
          const response=await Authapi.userLogIn({
             email:loginData.email,
             password:loginData.password,
             role:loginData.role
      })
-         console.log("response", response.data)
          if(response.status===200){
         Cookies.set('token', response.data.data, { expires: 1 });
+        toast.success("Login successful")
         router.push("/")
           }
-
      }
      catch(err:any){
         const error = err.response?.data;
-        alert(error.Message); 
+        toast.error(error.ErrorMessage)
      }
-    
     }
     return (
         <div className="min-h-screen w-screen flex flex-col items-center justify-center">
@@ -87,7 +83,7 @@ const Login=()=>{
             <label htmlFor="password" className="block mb-2 text-sm font-medium">
                 Password
             </label>
-            <Link href="/forgetPassword" className='text-sm text-shadow-black hover:underline hover:font-bold'>Forget your password</Link>
+            <Link href="/forget-password" className='text-sm text-shadow-black hover:underline hover:font-bold'>Forget your password</Link>
             </div>
             <input
             id="password"

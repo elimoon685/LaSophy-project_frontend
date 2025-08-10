@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, RefObject} from "react";
+import { useState, useEffect, useRef, RefObject } from "react";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { RxAvatar } from "react-icons/rx";
 import { BiLike } from "react-icons/bi";
@@ -12,6 +12,8 @@ import { RepliesCount } from "@/lib/CalculateCommentsCount";
 import { RiArrowDownWideFill } from "react-icons/ri";
 import { RiArrowUpWideLine } from "react-icons/ri";
 import LikeOrCollectApi from "@/api/like_or_collect";
+import { UpdateCommentLikesCount } from "@/lib/Booklikeupdate";
+import { DeleteComment } from "@/lib/DeleteComment";
 interface BookCommentPros {
   bookId: number | null
   bookComments: GetCommentResponse[],
@@ -32,6 +34,7 @@ const BookComments = ({ bookId, bookComments, setBookComments, userId }: BookCom
   const [activeReplyId, setActiveReplyId] = useState<number>()
   const [openMenuId, setOpenMenuId] = useState<number>()
   const ref = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -45,7 +48,6 @@ const BookComments = ({ bookId, bookComments, setBookComments, userId }: BookCom
 
     try {
       const response = await BookApi.createComments(newComment)
-      console.log("new comment", response.data.data)
       setBookComments(prev => [response.data.data, ...prev])
       setNewcomment(prev => ({ ...prev, content: "" }))
       setIsFocused(prev => !prev)
@@ -60,9 +62,7 @@ const BookComments = ({ bookId, bookComments, setBookComments, userId }: BookCom
   }
 
   const handleReplySubmit = async () => {
-
     if (!activeReplyId) return;
-
     const content = replyInputs[activeReplyId];
     if (!content?.trim()) return;
     try {
@@ -71,11 +71,11 @@ const BookComments = ({ bookId, bookComments, setBookComments, userId }: BookCom
         content: content,
         parentCommentId: activeReplyId
       })
-      console.log("reply", replyResponse.data.data)
       const createdReply = replyResponse.data.data;
       setBookComments(prev => insertReplyRecursive(prev, activeReplyId, createdReply))
       setReplyInputs(prev => ({ ...prev, [activeReplyId]: "" }))
       setActiveReplyId(undefined)
+      toast.success(replyResponse.data.message)
     } catch (err: any) {
       if (err.response?.status === 401) {
         toast.error("Please log in first.");
@@ -85,15 +85,35 @@ const BookComments = ({ bookId, bookComments, setBookComments, userId }: BookCom
     }
   }
   const handleCommentLike = async (commentId: number) => {
-    const commentLikeResponse = await LikeOrCollectApi.getCurrentCommentLike(commentId)
-
+    try {
+      const commentLikeResponse = await LikeOrCollectApi.getCurrentCommentLike(commentId)
+      setBookComments(prev => UpdateCommentLikesCount(prev, commentId, commentLikeResponse.data.data))
+      toast.success(commentLikeResponse.data.message)
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        toast.error("Please log in first.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+    }
 
   }
-  const handleCommentDelete = async () => {
+  const handleCommentDelete = async (commentId: number) => {
+    try {
+      const deleteResponse = await BookApi.DeleteComment(commentId)
+      setBookComments(prev => DeleteComment(prev, commentId))
+      toast.success(deleteResponse.data.message)
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        toast.error("Please log in first.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+    }
 
   }
   return (
-    <div className="w-full flex flex-col ml-4 space-y-5">
+    <div className="w-full flex flex-col ml-4 space-y-5 mb-4">
       <h1 className="text-2xl">Comments</h1>
       <div className="flex gap-3">
         <RxAvatar className="w-9 h-9" />
@@ -142,7 +162,7 @@ const BookComments = ({ bookId, bookComments, setBookComments, userId }: BookCom
                 <div className="flex items-center gap-8">
                   <div className="flex items-center gap-1">
                     <BiLike onClick={() => handleCommentLike(comment.commentsId)} />
-                    <span>0</span>
+                    <span>{comment.commentLikesCount}</span>
                   </div>
                   <button className="text-sm hover:font-bold"
                     onClick={() => setActiveReplyId(comment.commentsId)}
@@ -196,7 +216,7 @@ const BookComments = ({ bookId, bookComments, setBookComments, userId }: BookCom
                   >
                     <div className="flex flex-col">
                       {comment.userId === userId && (
-                        <button onClick={() => handleCommentDelete()} className="text-black hover:font-bold">
+                        <button onClick={() => handleCommentDelete(comment.commentsId)} className="text-black hover:font-bold">
                           Delete
                         </button>
                       )}
@@ -250,14 +270,14 @@ interface CommentsRepliesPros {
   setIsReplyFocused: React.Dispatch<React.SetStateAction<boolean>>,
   handleReplySubmit: () => void,
   handleCommentLike: (commentId: number) => void,
-  handleCommentDelete:(commentId:number)=>void,
-  openMenuId:number|undefined,
-  setOpenMenuId:React.Dispatch<React.SetStateAction<number | undefined>>
-  popupRef: RefObject<HTMLDivElement |null>;
-  userId:string|undefined,
+  handleCommentDelete: (commentId: number) => void,
+  openMenuId: number | undefined,
+  setOpenMenuId: React.Dispatch<React.SetStateAction<number | undefined>>
+  popupRef: RefObject<HTMLDivElement | null>;
+  userId: string | undefined,
   depth: number,
 }
-const CommentsReplies = ({ comment, activeReplyId, setActiveReplyId, replyInputs, setReplyInputs, setIsReplyFocused, handleReplySubmit, depth, handleCommentLike,handleCommentDelete, setOpenMenuId, openMenuId, popupRef,userId}: CommentsRepliesPros) => {
+const CommentsReplies = ({ comment, activeReplyId, setActiveReplyId, replyInputs, setReplyInputs, setIsReplyFocused, handleReplySubmit, depth, handleCommentLike, handleCommentDelete, setOpenMenuId, openMenuId, popupRef, userId }: CommentsRepliesPros) => {
   const [showMoreReplies, setShowMoreReplies] = useState<boolean>(false)
   return (
     <>
@@ -282,7 +302,7 @@ const CommentsReplies = ({ comment, activeReplyId, setActiveReplyId, replyInputs
                   <div className="flex items-center gap-8">
                     <div className="flex items-center gap-1">
                       <BiLike onClick={() => handleCommentLike(reply.commentsId)} />
-                      <span>0</span>
+                      <span>{reply.commentLikesCount}</span>
                     </div>
                     <button className="text-sm hover:font-bold"
                       onClick={() => setActiveReplyId(reply.commentsId)}
@@ -324,26 +344,26 @@ const CommentsReplies = ({ comment, activeReplyId, setActiveReplyId, replyInputs
                   }
                 </div>
                 <div className="">
-                  <HiOutlineDotsVertical 
-                  className="cursor-pointer"
-                  onClick={() => setOpenMenuId(reply.commentsId)}/>
+                  <HiOutlineDotsVertical
+                    className="cursor-pointer"
+                    onClick={() => setOpenMenuId(reply.commentsId)} />
                   {openMenuId === reply.commentsId && (
-                  <div
-                    ref={popupRef}
-                    className="absolute bg-white border border-gray-300 rounded shadow-md z-10 px-2 py-1 text-sm"
-                  >
-                    <div className="flex flex-col">
-                      {reply.userId === userId && (
-                        <button onClick={() => handleCommentDelete(reply.commentsId)} className="text-black hover:font-bold">
-                          Delete
+                    <div
+                      ref={popupRef}
+                      className="absolute bg-white border border-gray-300 rounded shadow-md z-10 px- py-1 text-sm"
+                    >
+                      <div className="flex flex-col">
+                        {reply.userId === userId && (
+                          <button onClick={() => handleCommentDelete(reply.commentsId)} className="text-black hover:font-bold">
+                            Delete
+                          </button>
+                        )}
+                        <button className="text-black hover:font-bold">
+                          Report
                         </button>
-                      )}
-                      <button className="text-black hover:font-bold">
-                        Report
-                      </button>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
                 </div>
               </div>
 

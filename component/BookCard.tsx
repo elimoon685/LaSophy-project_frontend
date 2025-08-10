@@ -28,6 +28,7 @@ const BookCard=({coverUrl,title, author, year, pdfPath, bookId, commentCount, bo
     <div className="flex justify-center bg-gray-100"> 
         <img
         src={coverUrl}
+        loading="lazy"
         className="w-40 h-64"
         />
     </div>

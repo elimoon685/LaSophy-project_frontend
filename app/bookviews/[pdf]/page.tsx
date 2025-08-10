@@ -29,8 +29,7 @@ const BookArea= ()=>{
     useEffect(()=>{
         const fetchBooks= async ()=>{
             try{
-            const response= await BookApi.getBooksInfoByPdfpath({pdfPath:pdfFilename})
-            console.log("bookinfo", response.data.data)
+            const response= await BookApi.getBooksInfoByBookId(bookId)
             const commentResponse=await BookApi.getBookCommentsByBookId(bookId)
             setBooksInfo(response.data.data) 
             setBookComments(commentResponse.data.data)
@@ -60,7 +59,6 @@ const BookArea= ()=>{
     const handleLike=async ()=>{
     try{
      const response=await LikeOrCollectApi.getCurrentLikeCount(booksInfo?.id)
-     console.log(response.data)
       setLikeCount(response.data.data)
     }
     catch(err:any){
@@ -85,7 +83,7 @@ const BookArea= ()=>{
            }
     }
     return (
-        <div className="min-h-screen w-screen">
+        <div className="w-screen">
             {isLoading && <>
         <PdfReader fileName={`${process.env.NEXT_PUBLIC_LASOPHY_BOOK_PDF_STORAGE_URL}${pdfFilename}`}/>
 

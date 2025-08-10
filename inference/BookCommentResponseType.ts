@@ -37,5 +37,6 @@ export interface GetCommentResponse{
     createdAt:Date,
     bookId:number,
     parentCommentId:number|null,
+    commentLikesCount:number,
     replies:Array<GetCommentResponse>
 }

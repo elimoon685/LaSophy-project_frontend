@@ -38,7 +38,6 @@ const Navbar=()=>{
           setIsAuthenticated(true)
           setUserName(decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"])
           setUserId(decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"])
-          console.log("token", decoded)
         }else{
           Cookies.remove("token")
         }

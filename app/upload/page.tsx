@@ -7,8 +7,9 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
 import { JwtPayload } from "@/inference/UserResponseType";
+import { setInterval } from "timers/promises";
 const Upload = () => {
-
+  type AuthStatus = 'checking' | 'authed' | 'unauth';
   const [uploadFormData, setUploadFormData] = useState<UploadFormData>({
     BookName: "",
     Author: "",
@@ -23,28 +24,44 @@ const Upload = () => {
   const [fileStatus, setFileStatus] = useState<string | null>(null)
   const [cover, setCover] = useState<File | undefined>(undefined);
   const [coverStatus, setCoverStatus] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<AuthStatus>("checking");
+  const [count, setCount]=useState<number>(5)
   const router = useRouter();
-
   useEffect(() => {
+    let tickId: number | undefined;
+    let toId: number | undefined;
+
+    const startCountDown=()=>{
+          setIsLoading("unauth")
+          tickId=window.setInterval(()=>{
+            setCount((c)=>Math.max(0, c-1))
+          }, 1000);
+          toId=window.setTimeout(()=>{
+            router.replace("login")
+          }, 5000)
+    }
     const token = Cookies.get("token")
-    if (token) {
-      try {
+    if (!token) {
+      startCountDown();
+    } else {
+      try{
         const decoded:JwtPayload = jwtDecode(token);
         const isTokenExpired = decoded.exp * 1000 < Date.now();
         if (isTokenExpired) {
-          router.push("/login");
+          startCountDown()
+        }else{
+          setIsLoading("authed");
           return;
         }
-        setIsLoading(false)
-      } catch (error) {
-        Cookies.remove("token")
-      }
-    } else {
-      router.push("/login")
+    } catch{
+      startCountDown();
     }
-
-  }, [])
+  }
+  return () => {
+    if (tickId !== undefined) clearInterval(tickId);
+    if (toId !== undefined) clearTimeout(toId);
+  };
+  }, [router])
 
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -99,14 +116,29 @@ const Upload = () => {
         alert(error.Message);
 
       }
-
-
     } catch (error: any) {
 
     }
   }
+  if (isLoading === 'checking') {
+    return <div className="flex justify-center mt-5">
+      <div className="inline-block px-20 py-10 border border-black bg-gray-300 shadow-lg drop-shadow-md shadow-black/30">
+      <h1 className="text-2xl font-bold">Checking auth…</h1>
+      </div>
+      </div>
+  }
 
-
+  if (isLoading === 'unauth') {
+    return (
+      <div className="flex justify-center mt-5">
+      <div className="px-24 py-10 border border-black bg-gray-300 shadow-lg drop-shadow-md shadow-black/30">
+        <h1 className="text-2xl font-bold">Authentication required</h1>
+        <p className="text-1xl">Redirecting to login in <span className="font-bold">{count}</span> second{count !== 1 ? 's' : ''}…</p>
+      </div>
+      </div>
+    );
+  }
+  
   return (
 
     <div className="flex flex-col items-center mt-5 mx-40 p-10">

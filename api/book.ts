@@ -8,8 +8,8 @@ const BookApi={
     getAllBooks:()=>
         apiBook.get<Response<GetAllBooksInfoResponse[]>>("/Comments/book"),
 
-    getBooksInfoByPdfpath:({pdfPath}:PdfPathDataForm)=>
-        apiBook.get<Response<GetBookInfoResponse>>(`/Comments/book/${pdfPath}`),                                                                                                                                                                                
+    getBooksInfoByBookId:(bookId:number|null)=>
+        apiBook.get<Response<GetBookInfoResponse>>(`/Comments/book/${bookId}`),                                                                                                                                                                              
 
     getBookCommentsByBookId:(bookId:number|null)=>
         apiBook.get<Response<GetCommentResponse[]>>(`/Comments/get-comments/${bookId}`),
@@ -18,7 +18,10 @@ const BookApi={
         apiBook.post<Response<GetCommentResponse>>("/Comments/comments", comment),
     
     createReply:(reply:CommentDataForm)=>
-        apiBook.post<Response<GetCommentResponse>>("/Comments/comments",reply)
+        apiBook.post<Response<GetCommentResponse>>("/Comments/comments",reply),
+
+    DeleteComment:(commentId:number)=>
+        apiBook.delete<Response<boolean>>(`/Comments/delete-comment/${commentId}`)
 
     
 }

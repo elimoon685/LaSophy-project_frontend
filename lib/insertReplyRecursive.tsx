@@ -5,9 +5,8 @@ export function insertReplyRecursive(comments:GetCommentResponse[], parentId:num
     return comments.map(comment=>{
           if(comment.commentsId==parentId){
 
-            return{...comment, replies:[...comment.replies, reply]};
+            return{...comment, replies:[reply, ...comment.replies]};
         }else if(comment.replies.length > 0){
-
             return {
                 ...comment, 
                 replies: insertReplyRecursive(comment.replies, parentId, reply)
@@ -18,3 +17,5 @@ export function insertReplyRecursive(comments:GetCommentResponse[], parentId:num
 
     })
 }
+
+

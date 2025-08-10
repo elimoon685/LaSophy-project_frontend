@@ -29,7 +29,7 @@ export default function RootLayout({
         <NavbarFooterWrapper>
         <main className="flex-grow">{children}</main>
        </NavbarFooterWrapper>
-       <Toaster position="top-center" />
+       <Toaster position="top-center"/>
       </body>
     </html>
   );

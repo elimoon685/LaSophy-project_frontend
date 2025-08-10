@@ -28,3 +28,10 @@ export interface UpdateUserInfoFormData{
     bio:string|null,
     userName:string,
 }
+export interface ResetPasswordFormData{
+    email:string|null
+    newPassword:string,
+    confirmNewPassword:string,
+    token:string|null
+
+}

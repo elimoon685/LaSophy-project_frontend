@@ -2,8 +2,9 @@
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { SignUpFormData } from '@/inference/type';
-import { apiClient } from '@/lib/apiClient';
+import { SignUpFormData } from '@/inference/UserRequestType';
+import Authapi from '@/api/login';
+import toast from "react-hot-toast";
 const Singup = () => {
 
   const router = useRouter();
@@ -13,31 +14,27 @@ const Singup = () => {
     password: "",
     confirmpassword: "",
   })
-  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
-      const response = await apiClient.post("/User/register", {
+      const response = await Authapi.userSignUp({
         email: formData.email,
         username: formData.username,
         password: formData.password,
         confirmpassword: formData.confirmpassword,
       })
-
       if (response.status === 200) {
-        router.push("/login")
+        toast.success("Register Successful")
+        setTimeout(()=>{
+          router.push("/login");
+        }, 1000)
       }
     } catch (err: any) {
-      if (err.response) {
-        const { status, data } = err.response
-        if (status === 400) {
-          console.log("data", data)
-          setError(data[0].description || 'Invalid input.');
-        } else if (status === 500) {
-          setError(data[0].description || 'Internal Server Error.');
-        }
+      if (err.response?.status === 400) {
+        toast.error(err.response?.ErrorMessage)
+      } else if (err.response?.status === 500) {
+        toast.error("Something went wrong. Please try again.")
       }
     }
   }
@@ -53,7 +50,6 @@ const Singup = () => {
             <h1 className="text-2xl font-bold">Sign up</h1>
             <h1 className='text-gray-600'>Enter details to sign up your account</h1>
           </div>
-          {error && <div className='text-red-700 p-3 mb-4 text-sm  bg-red-100 rounded-md'> {error}</div>}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="email" className="block mb-2 text-sm font-medium">

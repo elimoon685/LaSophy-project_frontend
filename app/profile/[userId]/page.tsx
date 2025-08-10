@@ -19,7 +19,7 @@ const Profile=()=>{
         try{
     const response=await ProfileApi.getUserInfo({userId:userId})
           console.log("userInfo",response.data.data)
-          dispatch(setUserInfo(response.data.data))
+          dispatch(setUserInfo(response.data.data))//that is action function created by createSlice, setuserInfo=function (payload){return {type: ....., payload:.....}}
         }catch(err:any){
 
         }

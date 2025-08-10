@@ -4,6 +4,7 @@ import { SignUpFormData } from "@/inference/UserRequestType"
 import Link from "next/link"
 import Authapi from "@/api/login"
 import { useRouter } from 'next/navigation';
+import toast from "react-hot-toast";
 const AdminSignUp = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null)
@@ -22,15 +23,16 @@ const AdminSignUp = () => {
         password: formData.password,
         confirmpassword: formData.confirmpassword
       })
-      console.log("response", response.data)
       if (response.status === 200) {
-        router.push("/login")
+        toast.success("Register Successful")
+        setTimeout(()=>{
+          router.push("/login");
+        }, 1000)
       }
     }
     catch (err: any) {
-      console.log(err)
       const error = err.response?.data;
-      alert(error.Message);
+      toast.error(error.ErrorMessage)
     }
   }
   return (

@@ -11,7 +11,6 @@ const BookViews=()=>{
         const fetchBooks= async ()=>{
             try{
             const response= await BookApi.getAllBooks()
-            console.log("AllBooksInfo", response.data.data)
             setBooks(response.data.data)
             } catch(error){
                 console.error("Failed to fetch books", error);
