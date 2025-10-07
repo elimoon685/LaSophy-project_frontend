@@ -1,5 +1,4 @@
 'use client';
-
 import { useRouter } from 'next/navigation';
 import { RiCloseCircleLine } from "react-icons/ri";
 import { useSelector} from 'react-redux';
@@ -17,6 +16,7 @@ export default function SettingsModal() {
   })
   const handleUpdateInfo=async()=>{
        const response=await ProfileApi.userInfoUpdate(updateInfo)
+       closeModal();
   }
   return (
     <div className="fixed inset-0 bg-black/10 backdrop-blur-[2px] z-50 flex justify-center items-center">

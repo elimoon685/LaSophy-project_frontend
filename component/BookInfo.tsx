@@ -8,8 +8,8 @@ interface BookInfoPros {
   title: string | undefined,
   author: string | undefined,
   year: string | undefined,
-  handleLike: () => void,
-  handleCollect: () => void,
+  handleLike: (likeOrNot:boolean) => void,
+  handleCollect: (collectorNot:boolean) => void,
   isLikeClicked: boolean,
   isCollectClicked: boolean,
   setLike: React.Dispatch<React.SetStateAction<boolean>>,
@@ -39,13 +39,13 @@ const BookInfo = ({ title, author, year, handleCollect, handleLike, isCollectCli
             <FaRegHeart className="h-6 w-6"
               onClick={() => {
                 setLike(prev => !prev)
-                handleLike()
+                handleLike(true)
               }}
             /> : <FaHeart
               className="h-6 w-6"
               onClick={() => {
                 setLike(prev =>!prev)
-                handleLike()
+                handleLike(false)
               }}
             />
           }
@@ -56,13 +56,13 @@ const BookInfo = ({ title, author, year, handleCollect, handleLike, isCollectCli
             <FaRegStar className="h-6 w-6"
               onClick={() => {
                 setCollect(prev => !prev)
-                handleCollect()
+                handleCollect(true)
               }}
             />:
             <FaStar className="h-6 w-6"
         onClick={()=>{
           setCollect(prev=>!prev)
-          handleCollect()
+          handleCollect(false)
         }}
         />
           }

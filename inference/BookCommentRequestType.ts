@@ -23,9 +23,16 @@ export interface InterativeFormData{
 export interface CommentDataForm{
     bookId:number|null,
     content: string,
-    parentCommentId:number| null
+    parentCommentId?:number|undefined
 }
-
 export interface PdfPathDataForm{
     pdfPath:ParamValue
+}
+export interface ToggleBookLike{
+    bookId: number|undefined,
+    isLiked:boolean
+}
+export interface ToggleBookCollect{
+    bookId: number|undefined,
+    isCollected:boolean
 }

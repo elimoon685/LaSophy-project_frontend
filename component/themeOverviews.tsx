@@ -10,7 +10,7 @@ return (
     <Link href="/bookviews">
     <Image src='/themebook.png' alt="Theme Book" width={500}
         height={340}/>
-    <h1 className="text-xl font-bold py-4 text-center">Transitions and rebellion, collapse and resurgence</h1>
+    <h1 className="text-xl font-bold py-4 text-center shadow-black/60">Transitions and rebellion, collapse and resurgence</h1>
     </Link>
     </div>
     <div className="rounded-sm shadow-lg drop-shadow-md shadow-black/30">

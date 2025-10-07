@@ -18,7 +18,6 @@ export interface UserState {
 
   };
   //
-
   const userSlice = createSlice({
     name: "userInfo",
     initialState,

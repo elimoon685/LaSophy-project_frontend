@@ -25,7 +25,7 @@ const BookComments = ({ bookId, bookComments, setBookComments, userId }: BookCom
   const [newComment, setNewcomment] = useState<CommentDataForm>({
     bookId: bookId,
     content: "",
-    parentCommentId: null
+    parentCommentId: undefined
   })
   const [isFocused, setIsFocused] = useState<boolean>(false)
   const [isReplyFocused, setIsReplyFocused] = useState<boolean>(false)
@@ -34,7 +34,77 @@ const BookComments = ({ bookId, bookComments, setBookComments, userId }: BookCom
   const [activeReplyId, setActiveReplyId] = useState<number>()
   const [openMenuId, setOpenMenuId] = useState<number>()
   const ref = useRef<HTMLDivElement>(null)
+  const Comments = [
+    {
+      "commentsId": 2,
+      "content": "this book show the real history of tai-ping rebellion, and i love this thank you, and one more thing, do you have any plan of uplaoding more books related with this",
+      "createdBy": "Eli",
+      "createdAt": "2025-05-12T01:27:09.324",
+      "bookId": 1,
+      "parentCommentId": null,
+      "commentLikesCount": 0,
+      "userId": "1000",
+      "replies": [
+        {
+          "commentsId": 3,
+          "content": "i totally agree with you",
+          "createdBy": "Elinor",
+          "createdAt": "2025-05-12T01:29:54.97",
+          "bookId": 1,
+          "parentCommentId": 2,
+          "commentLikesCount": 0,
+          "userId": "1001",
+          "replies": [
+            {
+              "commentsId": 4,
+              "content": "yeah me too",
+              "createdBy": "Elimacos",
+              "createdAt": "2025-05-12T01:29:54.97",
+              "bookId": 1,
+              "parentCommentId": 3,
+              "commentLikesCount": 0,
+              "userId": "1002",
+              "replies": [
+                {
+                  "commentsId": 5,
+                  "content": "hahahaah",
+                  "createdBy": "Elimoon",
+                  "createdAt": "2025-05-13T01:29:54.97",
+                  "bookId": 1,
+                  "parentCommentId": 4,
+                  "commentLikesCount": 0,
+                  "userId": "1003",
+                  "replies": []
+                }
+              ]
+            }
+          ]
+        }, {
+          "commentsId": 6,
+          "content": "yeah better than offical words",
+          "createdBy": "Eli36",
+          "createdAt": "2025-05-15T01:29:54.97",
+          "bookId": 1,
+          "parentCommentId": 2,
+          "commentLikesCount": 0,
+          "userId": "1004",
+          "replies": []
 
+        }
+      ]
+    },
+    {
+      "commentsId": 8,
+      "content": "Tartary is disgusting dynasty",
+      "createdBy": "MoMo",
+      "createdAt": "2025-05-12T09:44:08.844",
+      "bookId": 1,
+      "parentCommentId": null,
+      "commentLikesCount": 0,
+      "userId": "1005",
+      "replies": []
+    }
+  ]
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {

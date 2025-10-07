@@ -10,6 +10,11 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-blackletter: var(--font-blackletter);
+  --font-title: var(--font-playfair);
+  --font-libre: var(--font-libre-baskerville);
+  --font-merriweather: var(--font-merriweather);
+
 }
 
 @media (prefers-color-scheme: dark) {

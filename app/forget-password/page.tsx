@@ -13,7 +13,8 @@ const ForgetPassword = () => {
     e.preventDefault();
     try {
       const resposne = await Authapi.verifyEmail(enterEmail)
-      dispatch(setEmail(enterEmail));
+      console.log("response", resposne)
+      //dispatch(setEmail(enterEmail));
       router.push("/check-email")
     } catch (err: any) {
 
@@ -36,7 +37,7 @@ const ForgetPassword = () => {
               name="email"
               placeholder="Enter your email"
               value={enterEmail}
-              onChange={(e) => { setEnterEmail(e.target.value) }}
+              onChange={(e) => setEnterEmail(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               required
             />

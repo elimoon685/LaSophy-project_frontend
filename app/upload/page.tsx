@@ -7,7 +7,7 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
 import { JwtPayload } from "@/inference/UserResponseType";
-import { setInterval } from "timers/promises";
+import toast from "react-hot-toast";
 const Upload = () => {
   type AuthStatus = 'checking' | 'authed' | 'unauth';
   const [uploadFormData, setUploadFormData] = useState<UploadFormData>({
@@ -17,7 +17,6 @@ const Upload = () => {
     PDF: null,
     IMG: null,
   })
-
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | undefined>(undefined);
@@ -30,7 +29,6 @@ const Upload = () => {
   useEffect(() => {
     let tickId: number | undefined;
     let toId: number | undefined;
-
     const startCountDown=()=>{
           setIsLoading("unauth")
           tickId=window.setInterval(()=>{
@@ -73,7 +71,7 @@ const Upload = () => {
       setUploadFormData({ ...uploadFormData, PDF: droppedFile })
       setFileStatus("ready")
     } else {
-      alert("Please drop a valid PDF file.");
+      toast.error("Please drop a valid PDF file.");
     }
   }
   const handleCoverDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -84,7 +82,7 @@ const Upload = () => {
       setUploadFormData({ ...uploadFormData, IMG: droppedCover })
       setCoverStatus("ready")
     } else {
-      alert("Please drop a valid IMG.");
+      toast.error("Please drop a valid IMG.");
     }
 
   }
@@ -109,12 +107,11 @@ const Upload = () => {
       try {
         const response = await UploadApi.adminUpload(formData)
         if (response.status === 200) {
-          alert(response.data.message)
+          toast.success(response.data.message)
         }
       } catch (err: any) {
-        const error = err.response?.data;
-        alert(error.Message);
-
+        console.log("err", err)
+        toast.error(err.ErrorMessage)
       }
     } catch (error: any) {
 
@@ -191,6 +188,7 @@ const Upload = () => {
             </div>
             <div className="flex justify-between items-center">
               <button
+                type="button"
                 onClick={() =>
                   fileInputRef.current?.click()}
                 className=" bg-black text-white text-center py-1 px-2 rounded-sm text-sm cursor-pointer"
@@ -215,6 +213,7 @@ const Upload = () => {
             </div>
             <div className="flex justify-between items-center">
               <button
+                type="button"
                 onClick={() =>
                   coverInputRef.current?.click()}
                 className=" bg-black text-white text-center py-1 px-2 rounded-sm text-sm cursor-pointer"
@@ -228,7 +227,6 @@ const Upload = () => {
           </div>
         </div>
       </form >
-
       <button type="submit" form="uploadForm" className="bg-black text-white flex items-center justify-between text-center py-1 px-4 rounded-sm text-xl cursor-pointer mt-12"><MdFileUpload className="mr-1.5 h-5 w-5" />Upload</button>
     </div >
 

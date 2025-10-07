@@ -12,6 +12,9 @@ import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { JwtPayload } from "@/inference/UserResponseType";
+import NewBookComments from "@/component/NewBookComments";
+import NewBookCommentsVersion from "@/component/BookCommentsVersion4";
+//do not write in this way
 const BookArea= ()=>{
     const searchParams = useSearchParams();
     const rawBookId = searchParams.get('bookId');
@@ -26,6 +29,8 @@ const BookArea= ()=>{
     const [bookComments, setBookComments]=useState<GetCommentResponse[]>([])
     const [isLoading, setIsLoading]=useState<boolean>(false)
     const [userId, setUserId]=useState<string>()
+    const [commentLikeCount, setCommentLikeCount]=useState<number>()
+    const [isCommentLikeClicked, setIsCommentLikeClicked]=useState<boolean>()
     useEffect(()=>{
         const fetchBooks= async ()=>{
             try{
@@ -56,10 +61,26 @@ const BookArea= ()=>{
 
     },[])
 
-    const handleLike=async ()=>{
+    const handleLike=async(likeOrNot:boolean)=>{
+        console.log("likeorNot", likeOrNot)
     try{
-     const response=await LikeOrCollectApi.getCurrentLikeCount(booksInfo?.id)
-      setLikeCount(response.data.data)
+        debugger
+        if(likeOrNot){
+            const response=await LikeOrCollectApi.getCurrentLikeCount({
+                bookId:booksInfo?.id,
+                isLiked:true
+            })
+            setLikeCount(response.data.data)
+        }else{
+            const response=await LikeOrCollectApi.getCurrentLikeCount(
+                {
+                    bookId:booksInfo?.id,
+                    isLiked:false
+                }
+            )
+            setLikeCount(response.data.data)
+        }
+     
     }
     catch(err:any){
         if (err.response?.status === 401) {
@@ -69,10 +90,20 @@ const BookArea= ()=>{
           }
     }
     }
-    const handleCollect=async ()=>{
+
+    const handleCollect=async (collectOrNot:boolean)=>{
         try{
-            const response=await LikeOrCollectApi.getCurrentCollectCount(booksInfo?.id)
-             setCollectCount(response.data.data)
+            if(!collectOrNot){
+                const response=await LikeOrCollectApi.getCurrentCollectCount({
+                    bookId: booksInfo?.id,
+                    isCollected:false})
+                    setCollectCount(response.data.data)
+            }else{
+                const response=await LikeOrCollectApi.getCurrentCollectCount({
+                    bookId: booksInfo?.id,
+                    isCollected:true})
+                    setCollectCount(response.data.data)
+            }
            }
            catch(err:any){
             if (err.response?.status === 401) {
@@ -99,7 +130,9 @@ const BookArea= ()=>{
                   likeCount={likeCount}
                   collectCount={collectCount}
                   />
-        <BookComments bookId={bookId} bookComments={bookComments} setBookComments={setBookComments} userId={userId}/>
+        {/*<BookComments bookId={bookId} bookComments={bookComments} setBookComments={setBookComments} userId={userId}/>*/}
+        {/* <NewBookComments bookId={bookId} bookComments={bookComments} setBookComments={setBookComments} userId={userId} /> */}
+        <NewBookCommentsVersion bookId={bookId} bookComments={bookComments} setBookComments={setBookComments} userId={userId}/> 
            </> }
         </div>
     )

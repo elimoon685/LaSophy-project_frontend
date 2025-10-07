@@ -4,9 +4,12 @@ import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SignUpFormData } from '@/inference/UserRequestType';
 import Authapi from '@/api/login';
+import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import toast from "react-hot-toast";
-const Singup = () => {
 
+
+const Singup = () => {
+  const [showPassword, setShowPassword]=useState({password:false, confirmpassword:false})
   const router = useRouter();
   const [formData, setformData] = useState<SignUpFormData>({
     email: "",
@@ -32,6 +35,7 @@ const Singup = () => {
       }
     } catch (err: any) {
       if (err.response?.status === 400) {
+        
         toast.error(err.response?.ErrorMessage)
       } else if (err.response?.status === 500) {
         toast.error("Something went wrong. Please try again.")
@@ -80,13 +84,13 @@ const Singup = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500  text-sm"
                 required />
             </div>
-            <div className="mb-4">
+            <div className="mb-4 relative">
               <label htmlFor="password" className="block mb-2 text-sm font-medium">
                 Password
               </label>
               <input
                 id="password"
-                type="password"
+                type={ showPassword.password ? "text":"password"}
                 name="password"
                 placeholder="Enter your password"
                 value={formData.password}
@@ -94,14 +98,19 @@ const Singup = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500  text-sm"
                 required
               />
+              <button type="button"
+                className='absolute top-[60%] left-[93%]'
+                onClick={()=>setShowPassword(prev=>({...prev, password:!prev.password}))}>
+                  {showPassword.password ? <IoEyeOutline /> : <IoEyeOffOutline />}
+                </button>
             </div>
-            <div className="mb-4">
+            <div className="mb-4 relative">
               <label htmlFor="confirmPassword" className="block mb-2 text-sm font-medium">
                 Confirm Password
               </label>
               <input
                 id="confirmpassword"
-                type="password"
+                type={ showPassword.confirmpassword ? "text":"password"}
                 name="confirmpassword"
                 placeholder="Enter your password again"
                 value={formData.confirmpassword}
@@ -109,6 +118,11 @@ const Singup = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500  text-sm"
                 required
               />
+              <button type="button"
+                className='absolute top-[60%] left-[93%]'
+                onClick={()=>setShowPassword(prev=>({...prev, confirmpassword:!prev.confirmpassword}))}>
+                  {showPassword.confirmpassword ? <IoEyeOutline /> : <IoEyeOffOutline />}
+                </button>
             </div>
             <button className='w-full bg-black text-white text-center py-2'
               type="submit"

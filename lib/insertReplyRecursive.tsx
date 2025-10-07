@@ -1,6 +1,6 @@
 import { GetCommentResponse } from "@/inference/BookCommentResponseType"
 
-export function insertReplyRecursive(comments:GetCommentResponse[], parentId:number, reply:GetCommentResponse):GetCommentResponse[]{
+export function insertReplyRecursive(comments:GetCommentResponse[], parentId:number |null, reply:GetCommentResponse):GetCommentResponse[]{
 
     return comments.map(comment=>{
           if(comment.commentsId==parentId){
@@ -11,11 +11,21 @@ export function insertReplyRecursive(comments:GetCommentResponse[], parentId:num
                 ...comment, 
                 replies: insertReplyRecursive(comment.replies, parentId, reply)
             };
-
         }
         return comment;
 
     })
 }
+
+ function DeletetReply(comments:GetCommentResponse[], deleteId:number):GetCommentResponse[]{
+
+       return comments
+        .filter(comment=>comment.commentsId!==deleteId)
+        .map(comment=>({
+            ...comment,
+            replies:DeletetReply(comment.replies, deleteId)
+        })) 
+    }
+        
 
 
