@@ -1,23 +1,33 @@
 "use client"
-import { useState } from "react"
+import { useState,useEffect} from "react"
 import Link from "next/link"
 import { useDispatch } from 'react-redux';
 import { setEmail } from "@/store/slices/resetPassword"; //
 import Authapi from "@/api/login"
 import { useRouter } from 'next/navigation';
+import toast from "react-hot-toast";
+import { NotificationApi } from "@/api/notification";
 const ForgetPassword = () => {
   const router = useRouter();
   const [enterEmail, setEnterEmail] = useState('')
   const dispatch = useDispatch();
+  useEffect(() => {
+    (async () => {
+      try {
+        await NotificationApi.activateNotificationApi();
+      } catch (e: any) {
+      }
+    })()
+  }, [])
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const resposne = await Authapi.verifyEmail(enterEmail)
-      console.log("response", resposne)
-      //dispatch(setEmail(enterEmail));
-      router.push("/check-email")
+      dispatch(setEmail(enterEmail));
+      router.replace("/check-email")
     } catch (err: any) {
-
+      const error = err.response?.data;
+      toast.error(error.ErrorMessage)
     }
   }
   return (

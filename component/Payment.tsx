@@ -47,7 +47,7 @@ const Payment = () => {
   const NumberAmount = Number(FinalAmount).toFixed(2);
   return (
     <div className="flex flex-col border border-black flex-grow p-10 max-w-[400px]">
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col">
         <div className="flex items-center mb-3">
           <button className="w-6 h-6 rounded-full bg-black text-gray-300 mr-3">1</button>
           <p className="text-2xl">Choose amount(AUD)</p>

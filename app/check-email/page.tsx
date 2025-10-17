@@ -12,7 +12,7 @@ const CheckEmail=()=>{
         <MdOutlineMarkEmailUnread className='w-25 h-25'/>
         </div>
         <div>
-            <h1 className='text-3xl font-bold'>Check your email</h1>
+            <h1 className='text-3xl font-bold text-center'>Check your email</h1>
         </div>
         <p className='text-xl'>To create a new password, follow the link we sent to <span className='font-bold'>{email}</span>.</p>
          </div>

@@ -1,21 +1,28 @@
 'use client'
-import { useState } from "react"
+import { useState, useMemo} from "react"
 import { SignUpFormData } from "@/inference/UserRequestType"
 import Link from "next/link"
 import Authapi from "@/api/login"
 import { useRouter } from 'next/navigation';
 import toast from "react-hot-toast";
+import PasswordRequirements from "@/component/PasswordRequirements"
+import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
+import { getPasswordChecks } from "@/lib/checkPassword"
 const AdminSignUp = () => {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null)
+  const [passwordFocus, setPasswordFocus]=useState<boolean>(false)
+  const [showPassword, setShowPassword] = useState({ password: false, confirmpassword: false })
   const [formData, setformData] = useState<SignUpFormData>({
     email: "",
     username: "",
     password: "",
     confirmpassword: "",
   })
+  const checks = useMemo(() => getPasswordChecks(formData.password), [formData.password]);
+  const passwordValid = Object.values(checks).every(Boolean);
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
+    if(!passwordValid) return toast.error("Check requirements of password")
     try {
       const response = await Authapi.adminSignUp({
         email: formData.email,
@@ -42,7 +49,6 @@ const AdminSignUp = () => {
           <h1 className="text-2xl font-bold">Sign up for admin</h1>
           <h1 className='text-gray-600'>Enter details to sign up your account</h1>
         </div>
-        {error && <div className='text-red-700 p-3 mb-4 text-sm  bg-red-100 rounded-md'> {error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="email" className="block mb-2 text-sm font-medium">
@@ -77,24 +83,35 @@ const AdminSignUp = () => {
             <label htmlFor="password" className="block mb-2 text-sm font-medium">
               Password
             </label>
+            <div className="relative">
             <input
               id="password"
-              type="password"
+              type={showPassword.password? "text" : "password"}
               name="password"
               placeholder="Enter your password"
+              onFocus={()=>setPasswordFocus(true)}
+              onBlur={()=> !formData.password.trim() && setPasswordFocus(false)}
               value={formData.password}
               onChange={(e) => setformData({ ...formData, password: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500  text-sm"
               required
             />
+            <button type="button"
+                className='absolute top-[30%] left-[93%]'
+                onClick={() => setShowPassword(prev => ({ ...prev, password: !prev.password }))}>
+                {showPassword.password ? <IoEyeOutline /> : <IoEyeOffOutline />}
+              </button>
+            </div>
+            {passwordFocus && <PasswordRequirements password={formData.password}/>}
           </div>
-          <div className="mb-4">
+          <div className="mb-4 ">
             <label htmlFor="confirmPassword" className="block mb-2 text-sm font-medium">
               Confirm Password
             </label>
+            <div className="relative">
             <input
               id="confirmpassword"
-              type="password"
+              type={showPassword.confirmpassword?"text":"password"}
               name="confirmpassword"
               placeholder="Enter your password again"
               value={formData.confirmpassword}
@@ -102,6 +119,13 @@ const AdminSignUp = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500  text-sm"
               required
             />
+            <button type="button"
+                className='absolute top-[30%] left-[93%]'
+                onClick={() => setShowPassword(prev => ({ ...prev, confirmpassword: !prev.confirmpassword }))}>
+                {showPassword.confirmpassword ? <IoEyeOutline /> : <IoEyeOffOutline />}
+              </button>
+            </div>
+            
           </div>
           <button className='w-full bg-black text-white text-center py-2'
             type="submit"

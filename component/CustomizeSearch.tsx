@@ -1,7 +1,7 @@
 const CustomizeSearch=()=>{
 
 return(
-    <div className="flex not-even:lg:w-[300px] bg-gray-200 md:w-[150px] relative">
+    <div className="flex lg:w-[300px] bg-gray-200 md:w-[150px] relative">
 
         <div className="hidden left-[0%] md:flex flex flex-col absolute top-[100px] lg:left-[10%] gap-5">
             <h1 className="font-libre text-xl">Custom year range</h1>

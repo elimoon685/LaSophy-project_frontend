@@ -1,25 +1,46 @@
 'use client'
 import Link from 'next/link';
-import { FormEvent, useState } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SignUpFormData } from '@/inference/UserRequestType';
 import Authapi from '@/api/login';
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import toast from "react-hot-toast";
+import PasswordRequirements from '@/component/PasswordRequirements';
+import { getPasswordChecks } from '@/lib/checkPassword';
 
 
 const Singup = () => {
-  const [showPassword, setShowPassword]=useState({password:false, confirmpassword:false})
+  const [showPassword, setShowPassword] = useState({ password: false, confirmpassword: false })
   const router = useRouter();
+  const [passwordFocus, setPasswordFocus] = useState<boolean>(false)
+  const [show, setShow] = useState(false);
   const [formData, setformData] = useState<SignUpFormData>({
     email: "",
     username: "",
     password: "",
     confirmpassword: "",
   })
+  const checks = useMemo(() => getPasswordChecks(formData.password), [formData.password]);
+  const passwordValid = Object.values(checks).every(Boolean);
+
+  useEffect(() => {
+    if (passwordFocus) {
+      const t = window.setTimeout(() => setShow(true), 1000);
+      return () => {
+        if (t !== undefined) {
+          window.clearTimeout(t);
+
+        }
+      }
+    } else {
+      setShow(false);
+    }
+  }, [passwordFocus])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+   if(!passwordValid) return toast.error("Check requirements of password")
     try {
       const response = await Authapi.userSignUp({
         email: formData.email,
@@ -29,13 +50,13 @@ const Singup = () => {
       })
       if (response.status === 200) {
         toast.success("Register Successful")
-        setTimeout(()=>{
+        setTimeout(() => {
           router.push("/login");
         }, 1000)
       }
     } catch (err: any) {
       if (err.response?.status === 400) {
-        
+
         toast.error(err.response?.ErrorMessage)
       } else if (err.response?.status === 500) {
         toast.error("Something went wrong. Please try again.")
@@ -84,25 +105,41 @@ const Singup = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500  text-sm"
                 required />
             </div>
-            <div className="mb-4 relative">
+            <div className="mb-4">
               <label htmlFor="password" className="block mb-2 text-sm font-medium">
                 Password
               </label>
+              <div className='relative'>
               <input
                 id="password"
-                type={ showPassword.password ? "text":"password"}
+                type={showPassword.password ? "text" : "password"}
                 name="password"
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={(e) => setformData({ ...formData, password: e.target.value })}
+                onFocus={() => setPasswordFocus(true)}
+                onBlur={() => !formData.password.trim() && setPasswordFocus(false)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500  text-sm"
                 required
               />
               <button type="button"
-                className='absolute top-[60%] left-[93%]'
-                onClick={()=>setShowPassword(prev=>({...prev, password:!prev.password}))}>
-                  {showPassword.password ? <IoEyeOutline /> : <IoEyeOffOutline />}
-                </button>
+                className='absolute top-[30%] left-[93%]'
+                onClick={() => setShowPassword(prev => ({ ...prev, password: !prev.password }))}>
+                {showPassword.password ? <IoEyeOutline /> : <IoEyeOffOutline />}
+              </button>
+              </div>
+              
+              {show &&
+                <div
+                  className={`mt-2 transition-opacity duration-200 ${show ? "opacity-100" : "opacity-0 pointer-events-none"
+                    }`}
+                  style={{ transitionDelay: show ? "150ms" : "0ms" }}
+                  aria-hidden={!show}
+                >
+                  <PasswordRequirements password={formData.password} />
+
+                </div>
+              }
             </div>
             <div className="mb-4 relative">
               <label htmlFor="confirmPassword" className="block mb-2 text-sm font-medium">
@@ -110,7 +147,7 @@ const Singup = () => {
               </label>
               <input
                 id="confirmpassword"
-                type={ showPassword.confirmpassword ? "text":"password"}
+                type={showPassword.confirmpassword ? "text" : "password"}
                 name="confirmpassword"
                 placeholder="Enter your password again"
                 value={formData.confirmpassword}
@@ -120,9 +157,9 @@ const Singup = () => {
               />
               <button type="button"
                 className='absolute top-[60%] left-[93%]'
-                onClick={()=>setShowPassword(prev=>({...prev, confirmpassword:!prev.confirmpassword}))}>
-                  {showPassword.confirmpassword ? <IoEyeOutline /> : <IoEyeOffOutline />}
-                </button>
+                onClick={() => setShowPassword(prev => ({ ...prev, confirmpassword: !prev.confirmpassword }))}>
+                {showPassword.confirmpassword ? <IoEyeOutline /> : <IoEyeOffOutline />}
+              </button>
             </div>
             <button className='w-full bg-black text-white text-center py-2'
               type="submit"

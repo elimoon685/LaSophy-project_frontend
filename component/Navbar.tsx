@@ -27,9 +27,8 @@ const Navbar = ({ auth }: { auth: boolean }) => {
   const [user, setUser] = useState<UserInfo>()
   const router = useRouter()
   const ctx = useContext(WSContext)
-  console.log("test render or not")
   if (!ctx) throw new Error("Wrap this tree with <ServerEventsProvider url=...>");
-  const { connected,close} = ctx;
+  const { connected, close} = ctx;
   const toggleDropdown = () => {
     SetIsOpen(prev => !prev);
   }
@@ -102,9 +101,6 @@ const Navbar = ({ auth }: { auth: boolean }) => {
               >
                 <RiLoginCircleLine className="mr-1.5 h-6 w-6" />
                 Login
-                {connected &&
-                  <FcOk className="w-4 h-4 ml-1" />
-                }
               </button>
               <button
                 className="flex items-center justify-center  p-1 text-gray-300 cursor-pointer font-libre"
@@ -122,7 +118,7 @@ const Navbar = ({ auth }: { auth: boolean }) => {
               >
                 <div className="relative inline-block">
                   <RxAvatar className="mr-1.5 h-8 w-8" />
-                  <span className="absolute h-3 w-3 bg-red-600 rounded-full top-[0] left-[56%]"></span>
+                  <span className="absolute h-5 w-5 bg-red-500 rounded-xl -top-[15%] -left-[25%]"></span>
                 </div>
                 <span className="font-libre">{user?.userName}</span>
                 {connected &&

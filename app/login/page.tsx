@@ -42,9 +42,6 @@ const Login = () => {
            credentials:"include",
           })
           //
-        // const ws=new WebSocket(`wss://${process.env.NEXT_PUBLIC_LASOPHY_NOTIFICATION_BACKEND_API_URL}/ws`)
-        // ws.onopen=()=>{console.log("ws connected")}
-        // ws.onmessage=(e)=>{console.log("data", e)}
         Cookies.set('token', token, { expires: 1 });
         const decoded:JwtPayload = jwtDecode(token);
         const userInfo={"userId":decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"], userName:userName}

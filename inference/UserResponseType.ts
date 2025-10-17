@@ -15,3 +15,17 @@ export interface GetUserInfoResponse{
     email: string,
     userName:string,
 }
+export interface GetUserReplyHistoryResponse{
+    id:number,
+    bookId:number;
+    receiverUserId:string,
+    actorUserId:string,
+    actorUserName:string,
+    type:string,
+    commentId:number,
+    parentCommentContent:string,
+    content:string,
+    createdAt:Date,
+    readAt:Date,
+
+}

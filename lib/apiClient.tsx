@@ -27,6 +27,12 @@ export const apiBook=axios.create({
       'Content-Type': 'application/json',
     },
 })
+export const apiNotification=axios.create({
+  baseURL:process.env.NEXT_PUBLIC_LASOPHY_NOTIFICATION_BACKEND_API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
 /*
 apiClient.interceptors.request.use(
     (config) => {
@@ -53,6 +59,8 @@ apiClient.interceptors.request.use(attachToken, (error) => Promise.reject(error)
 apiComment.interceptors.request.use(attachToken, (error) => Promise.reject(error));
 apiBook.interceptors.request.use(attachToken, (error) => Promise.reject(error));
 apiUpload.interceptors.request.use(attachToken, (error) => Promise.reject(error));
+apiNotification.interceptors.request.use(attachToken, (error) => Promise.reject(error));
+
 
 
 

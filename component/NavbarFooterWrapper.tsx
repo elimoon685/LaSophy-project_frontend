@@ -14,7 +14,7 @@ const NavbarFooterWrapper=({children}:Readonly<{children: React.ReactNode}>)=>{
      const hiddenRouter=['/login','/signup','/reset-password','/forget-password',"/admin_signup","/check-email"]
      const hiddenLayout=hiddenRouter.includes(pathName)
      const isHome = pathName === '/';
-     const url=`wss://${process.env.NEXT_PUBLIC_LASOPHY_NOTIFICATION_BACKEND_API_URL}/ws`;
+     const url=`wss://${process.env.NEXT_PUBLIC_LASOPHY_NOTIFICATION_WS_BACKEND_API_URL}/ws`;
      const token= Cookies.get("token");
      const auth=!!token && (
        ()=>{try {
@@ -30,9 +30,9 @@ return (
      {!hiddenLayout && <Navbar auth={auth} /> }
      
      {(!hiddenLayout && !isHome) && <SubNavbar/>}
-     <div className="flex-grow flex flex-col">
+     {/* <div className="flex-grow flex flex-col"> */}
       {children}
-      </div>
+      {/* </div> */}
      {!hiddenLayout && <Footer/>}
      </WebsocketProvider>
     </>
