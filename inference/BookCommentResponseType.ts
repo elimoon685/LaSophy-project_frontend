@@ -34,7 +34,7 @@ export interface GetCommentResponse{
     content: string,
     createdBy:string,
     userId:string,
-    createdAt:Date,
+    createdAtUtc:Date,
     bookId:number,
     parentCommentId:number|null,
     commentLikesCount:number,

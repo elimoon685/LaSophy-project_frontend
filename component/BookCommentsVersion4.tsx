@@ -10,6 +10,7 @@ import { timeAgo } from "@/lib/CalculateTime";
 import { GetCommentResponse } from "@/inference/BookCommentResponseType";
 import { insertReplyRecursive } from "@/lib/insertReplyRecursive";
 import { DeleteComment } from "@/lib/DeleteComment";
+import LikeOrCollectApi from "@/api/like_or_collect";
 import toast from "react-hot-toast";
 type CommentDataForm = {
   bookId: number | null;
@@ -35,7 +36,6 @@ const NewBookCommentsVersion = ({ bookId, bookComments, setBookComments, userId 
     bookId: bookId,
     content: "",
   });
-  console.log("new comment")
   const submitFirstLayerComment= async (bookId:number|null, content:string)=>{
     if(!content.trim()) return;
     try{
@@ -55,7 +55,7 @@ const NewBookCommentsVersion = ({ bookId, bookComments, setBookComments, userId 
   }
 
   return (
-    <div className="flex flex-col max-w-[600px]">
+    <div className="flex flex-col max-w-[600px] pl-5">
       <h1 className="text-2xl mb-5">Comment</h1>
       <div className="flex mb-10 flex-col">
         <div className="flex">
@@ -185,7 +185,22 @@ const RenderCommentNote = ({ parent, userId, bookId, setBookComments }: Props) =
       const next = (prev[parentId] ?? 0) + 5;
       return { ...prev, [parentId]: Math.min(next, tails) }
     });
+  //submit the comment like
 
+  const submitCommentLike= async(commentId:number, likeOrNot:boolean)=>{
+
+    try{
+    if(likeOrNot){
+    const likeResponse=await LikeOrCollectApi.getCurrentCommentLike({commentId:commentId, isLiked:likeOrNot})
+    }
+    else{
+      const cancelResponse=await LikeOrCollectApi.getCurrentCommentLike({commentId:commentId, isLiked:likeOrNot})
+    }
+  }catch(err:any){
+
+  }
+    
+  }
   // for every comment and reply render 
   const singleCommentRender = (comment: GetCommentResponse, depth = 0, parent?: GetCommentResponse) => {
     return (
@@ -195,16 +210,16 @@ const RenderCommentNote = ({ parent, userId, bookId, setBookComments }: Props) =
           <div className="flex flex-col flex-grow ml-3">
             <div className="flex items-center gap-5">
               <span className="text-m font-bold">@{comment.createdBy}</span>
-              <span className="text-sm font-bold text-gray-500">{timeAgo(comment.createdAt)}</span>
+              <span className="text-sm font-bold text-gray-500">{timeAgo(comment.createdAtUtc)}</span>
             </div>
             <p>{depth > 1 && <span className="text-gray-600 text-sm font-bold">Reply @{parent?.createdBy}:</span>}{comment.content}</p>
             <div className="flex self-end items-center gap-5">
               <span className="flex items-center">
                 {comment.commentLikedByMe ?
-                  <BiSolidLike className="mr-2 cursor-pointer" onClick={() => {}} /> :
-                  <BiLike className="mr-2 cursor-pointer" onClick={() => {}} />}
+                  <BiSolidLike className="mr-2 cursor-pointer" onClick={() => {submitCommentLike(comment.commentsId, true)}} /> :
+                  <BiLike className="mr-2 cursor-pointer" onClick={() => {submitCommentLike(comment.commentsId, false)}}/>}
                 {comment.commentLikesCount}</span>
-              <button className="font-bold cursor-pointer hover:bg-gray-300 hover:font-bold rounded-2xl px-2 py-1"
+              <button className="font-bold cursor-pointer hover:bg-gray-300 rounded-2xl px-2 py-1 transition-colors duration-600 ease-in-out"
                 onClick={() => setActiveReplyId(comment.commentsId)}
               >Reply</button>
             </div>
@@ -228,7 +243,7 @@ const RenderCommentNote = ({ parent, userId, bookId, setBookComments }: Props) =
                     Cancel
                   </button>
                   <button
-                    className="font-bold cursor-pointer hover:bg-gray-300 hover:font-bold rounded-2xl px-2 py-1"
+                    className="font-bold cursor-pointer hover:bg-gray-300 hover:font-bold rounded-2xl px-2 py-1 transition-colors duration-1000"
                     onClick={() => submitReply(bookId, newReply[comment.commentsId], activeReplyId)}>
                     Reply
                   </button>
@@ -270,8 +285,8 @@ const RenderCommentNote = ({ parent, userId, bookId, setBookComments }: Props) =
       {visibleTails.map(tail => singleCommentRender(tail.note, tail.depth, tail.parent))}
       {remaining > 0 &&
         <div className="border-gray-300 border-t relative p-3 min-w-[330px] self-center">
-          <span className="absolute flex -top-[60%] bg-white right-[50%] translate-x-1/2 px-1">
-            <button className="hover:font-bold" onClick={() => showMoreReplies(parent.commentsId, tails.length)}>
+          <span className="absolute flex -top-[60%] bg-white right-[50%] translate-x-1/2 px-2 mx-2">
+            <button className="hover:font-bold whitespace-nowrap" onClick={() => showMoreReplies(parent.commentsId, tails.length)}>
               View {remaining} more repl{remaining === 1 ? "y" : "ies"}
             </button>
           </span>

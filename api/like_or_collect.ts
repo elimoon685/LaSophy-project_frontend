@@ -1,6 +1,7 @@
 import { apiBook } from "@/lib/apiClient";
 import { Response } from "@/inference/ApiResponse";
-import { ToggleBookCollect,ToggleBookLike } from "@/inference/BookCommentRequestType";
+import { ToggleBookCollect,ToggleBookLike, ToggleCommentLike} from "@/inference/BookCommentRequestType";
+
 const LikeOrCollectApi={
 
     getCurrentLikeCount:(toggleLike:ToggleBookLike)=>
@@ -9,8 +10,8 @@ const LikeOrCollectApi={
     getCurrentCollectCount:(toggleCollect:ToggleBookCollect)=>
         apiBook.post<Response<number>>("/Interactive/book-collect", toggleCollect),
 
-    getCurrentCommentLike:(commentId:number|undefined)=>
-        apiBook.post<Response<number>>("/Interactive/like-comment",{commentId: commentId})
+    getCurrentCommentLike:(toggleCommentFormFata:ToggleCommentLike)=>
+        apiBook.post<Response<number>>("/Interactive/like-comment",toggleCommentFormFata)
 }
 
 export default LikeOrCollectApi

@@ -36,3 +36,8 @@ export interface ToggleBookCollect{
     bookId: number|undefined,
     isCollected:boolean
 }
+
+export interface ToggleCommentLike{
+    commentId:number,
+    isLiked:boolean
+}

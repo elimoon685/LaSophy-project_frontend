@@ -35,3 +35,9 @@ export interface ResetPasswordFormData{
     token:string|null
 
 }
+export interface CreatePaymentFormData{
+    email: string,
+    firstName:string,
+    amountAud:string,
+
+}

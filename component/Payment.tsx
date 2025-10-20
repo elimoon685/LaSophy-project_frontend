@@ -7,14 +7,24 @@ import {
   Elements, PaymentElement, AddressElement,
   useStripe, useElements
 } from "@stripe/react-stripe-js";
-import { unauthorized } from "next/navigation";
+import { CreatePaymentFormData } from "@/inference/UserRequestType";
+import { PaymentApi } from "@/api/payment";
+
+type FormDataPros={
+  name:string,
+  setName:React.Dispatch<React.SetStateAction<string>>,
+  email: string,
+  setEmail:React.Dispatch<React.SetStateAction<string>>,
+  amount:string,
+}
+
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 const Payment = () => {
   const [donateAmount, setAmount] = useState<string>("5")
   const [customAmount, setCustomAmount] = useState<string>("")
   const [selected, setSelected] = useState<string>("")
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [addr, setAddr] = useState<any>(null);
 
   const handleSelectFixedAmount = (amount: string) => {
@@ -22,7 +32,7 @@ const Payment = () => {
     setAmount(amount);
     setCustomAmount("");
   }
-  const handleOnChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value;
     if (v === "") {
       setCustomAmount("");
@@ -38,12 +48,12 @@ const Payment = () => {
       e.preventDefault();
     }
   };
-  const handleOnblur=()=>{
-    if (customAmount === "" || customAmount === "." || Number(customAmount)<1) return ;
+  const handleOnblur = () => {
+    if (customAmount === "" || customAmount === "." || Number(customAmount) < 1) return;
     const n = Number(customAmount);
     setCustomAmount(n.toFixed(2));
   }
-  const FinalAmount = selected === "custom" && (customAmount !== "" && customAmount !== "0")? customAmount : donateAmount
+  const FinalAmount = selected === "custom" && (customAmount !== "" && customAmount !== "0") ? customAmount : donateAmount
   const NumberAmount = Number(FinalAmount).toFixed(2);
   return (
     <div className="flex flex-col border border-black flex-grow p-10 max-w-[400px]">
@@ -106,7 +116,7 @@ const Payment = () => {
             </label>
           </div>
         </div>
-        {selected==="custom" && Number(customAmount)<1 && <p className="text-red-500 mt-2">Please select an amount greater than $1</p>}
+        {selected === "custom" && Number(customAmount) < 1 && <p className="text-red-500 mt-2">Please select an amount greater than $1</p>}
         <div className="flex items-center mt-3 mb-3 w-full"><span className="flex-grow border-t-2 border-black text-center font-bold text-2xl">Total:${NumberAmount}</span></div>
       </div>
       { /*
@@ -121,7 +131,7 @@ const Payment = () => {
         </div>
       </div> */}
       <div className="flex flex-col">
-      <div className="flex items-center mb-3">
+        <div className="flex items-center mb-3">
           <button className="w-6 h-6 rounded-full bg-black text-gray-300 mr-3">2</button>
           <p className="text-2xl">Enter payment information</p>
         </div>
@@ -131,7 +141,7 @@ const Payment = () => {
           // deferred mount: no clientSecret yet
           options={{ mode: "payment", amount: Math.max(1, Number(NumberAmount) * 100), currency: "aud", appearance: stripeAppearance }}
         >
-          <Form name={name} setName={setName} email={email} setEmail={setEmail} addr={addr} setAddr={setAddr} amount={NumberAmount} />
+          <Form name={name} setName={setName} email={email} setEmail={setEmail}  amount={NumberAmount} />
         </Elements>
       </div>
 
@@ -139,29 +149,66 @@ const Payment = () => {
     </div>
   )
 }
-const Form = ({ name, setName, email, setEmail, addr, setAddr, amount }: any) => {
+const Form = ({ name, setName, email, setEmail, amount }: FormDataPros) => {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
-  const onSubmit = () => {
-  
+  const onSubmit = async (e:React.FormEvent) => {
+    e.preventDefault();
+    if(!email || ! name || !amount) return;
+    if (!stripe || !elements) return;
+    try{
+      const { error: submitError } = await elements.submit();
+  if (submitError) {
+    // e.g. “Enter a card number”, “CVC required”, etc.
+    // Show submitError.message and return
+    return;
+  }
+
+      const res:any= await PaymentApi.getPaymentIntent({email:email, firstName:name, amountAud:amount})
+      const clientSecret = res.data.clientSecret;
+      const { error } = await stripe.confirmPayment({
+        elements,
+        clientSecret,
+        confirmParams: {
+          // 支付成功后跳转的页面
+          return_url: `${window.location.origin}/donate/success`,
+        },
+      });
+
+    }catch(err:any){
+
+    }
 
   }
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       {/* your own non-sensitive fields */}
       <label className="block text-[#374151] mb-[3px] font-bold text-[14.88px] leading-[17.112px]" htmlFor="email">Email<span></span></label>
-      <input id="email" name="email" className="border-1 border-[#9ca3af] rounded p-[9px] mb-[15px] w-full text-[20px] leading-[23px] focus:border-[#111827] focus:shadow-[0_0_0_3px_rgba(17,24,39,.15)] focus:outline-none" placeholder="" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+      <input id="email"
+        name="email"
+        className="border-1 border-[#9ca3af] rounded p-[9px] mb-[15px] w-full text-[20px] leading-[23px] focus:border-[#111827] focus:shadow-[0_0_0_3px_rgba(17,24,39,.15)] focus:outline-none" 
+        placeholder="" 
+        type="email" 
+        value={email} 
+        onChange={e => setEmail(e.target.value)} required />
 
       {/* Stripe-hosted fields */}
-      <AddressElement options={{ mode: "billing", display: { name: "split" } }} onChange={(ev) => setAddr(ev)} />
+      <AddressElement options={{ mode: "billing", display: { name: "split" } }} 
+      onChange={(ev) =>{
+        const { value } = ev;
+        const firstName = value?.firstName ?? "";
+        setName(firstName);
+      }
+      } />
       <div className="flex items-center mb-3">
         <button className="w-6 h-6 rounded-full bg-black text-gray-300 mr-3">3</button>
         <p className="text-2xl">Choose payment method</p>
       </div>
       <PaymentElement />  {/* card + CVC + wallets as applicable */}
 
-      <button disabled={!stripe || loading} className="px-4 py-2 rounded bg-emerald-600 text-white w-full">
+      <button disabled={!stripe || loading} 
+              className="px-4 py-2 rounded bg-emerald-600 text-white w-full">
         Donate
       </button>
     </form>
