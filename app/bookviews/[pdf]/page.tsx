@@ -15,6 +15,8 @@ import { JwtPayload } from "@/inference/UserResponseType";
 import NewBookComments from "@/component/NewBookComments";
 import NewBookCommentsVersion from "@/component/BookCommentsVersion4";
 //do not write in this way
+type commentLikeInfo = { currentLike: boolean; count: number };
+type likeRoots=Partial<Record<number,Record<number,commentLikeInfo>>>;
 const BookArea= ()=>{
     const searchParams = useSearchParams();
     const rawBookId = searchParams.get('bookId');
@@ -28,20 +30,54 @@ const BookArea= ()=>{
     const [isCollectClicked, setIsCollectClicked]=useState<boolean>(false)
     const [bookComments, setBookComments]=useState<GetCommentResponse[]>([])
     const [isLoading, setIsLoading]=useState<boolean>(false)
-    const [userId, setUserId]=useState<string>()
+    const [userId, setUserId]=useState<string>();
+    const [commentlikes, setCommentLikes] = useState<likeRoots>({});
     const [commentLikeCount, setCommentLikeCount]=useState<number>()
     const [isCommentLikeClicked, setIsCommentLikeClicked]=useState<boolean>()
+
+    function flattenLikes(root: GetCommentResponse[]): Partial<Record<number, commentLikeInfo>> {
+        const out: Partial<Record<number, commentLikeInfo>> = {};
+        const stack = [...root];
+        while (stack.length) {
+          const c = stack.pop()!;
+          out[c.commentsId] = { currentLike: c.commentLikedByMe, count: c.commentLikesCount };
+          if (c.replies?.length) stack.push(...c.replies);
+        }
+        return out;
+    }
+    function flattenCommentLikes(root: GetCommentResponse[]):likeRoots {
+        const likesByRoot:likeRoots={};
+        for(const c of root){
+            if (!likesByRoot[c.commentsId]) {
+                likesByRoot[c.commentsId] = {};
+              }
+          likesByRoot[c.commentsId]![c.commentsId]={currentLike:c.commentLikedByMe, count:c.commentLikesCount};
+          const parentStack=[...c.replies]
+          while(parentStack.length){
+            const reply=parentStack.pop()!;
+            (likesByRoot[c.commentsId]??{})[reply.commentsId]={currentLike:reply.commentLikedByMe, count:c.commentLikesCount}
+            if(reply.replies?.length) parentStack.push(...reply.replies)
+          }
+
+        }
+        return likesByRoot
+      }
+     
+
     useEffect(()=>{
         const fetchBooks= async ()=>{
             try{
             const response= await BookApi.getBooksInfoByBookId(bookId)
-            const commentResponse=await BookApi.getBookCommentsByBookId(bookId)
+            const commentResponse=await BookApi.getBookCommentsByBookId(bookId);
+            //const seeded = flattenLikes(commentResponse.data.data);
+            const commentLikesStructure=flattenCommentLikes(commentResponse.data.data);
             setBooksInfo(response.data.data) 
             setBookComments(commentResponse.data.data)
             setIsLikeClicked(response.data.data.currentUserLike)
             setIsCollectClicked(response.data.data.currentUserCollect)
             setLikeCount(response.data.data.likeCount)
             setCollectCount(response.data.data.collectCount)
+            setCommentLikes(commentLikesStructure)
             setIsLoading(true)
             } catch(error){
                 console.error("Failed to fetch books", error);
@@ -132,9 +168,9 @@ const BookArea= ()=>{
                   />
         {/*<BookComments bookId={bookId} bookComments={bookComments} setBookComments={setBookComments} userId={userId}/>*/}
         {/* <NewBookComments bookId={bookId} bookComments={bookComments} setBookComments={setBookComments} userId={userId} /> */}
-        <NewBookCommentsVersion bookId={bookId} bookComments={bookComments} setBookComments={setBookComments} userId={userId}/> 
+        <NewBookCommentsVersion bookId={bookId} bookComments={bookComments} setBookComments={setBookComments} userId={userId} commentlikes={commentlikes} setCommentLikes={setCommentLikes}/> 
            </> }
         </div>
     )
 }
-export default BookArea
+export default BookArea         

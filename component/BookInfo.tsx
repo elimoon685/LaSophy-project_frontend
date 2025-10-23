@@ -21,9 +21,9 @@ interface BookInfoPros {
 const BookInfo = ({ title, author, year, handleCollect, handleLike, isCollectClicked, isLikeClicked, setLike, setCollect, likeCount, collectCount}: BookInfoPros) => {
 
   return (
-    <div className="w-full flex ml-4 mt-3 mb-8 max-w-[700px]">
-      <div className="flex flex-grow gap-5 ">
-        <GiSpellBook className="w-10 h-10" />
+    <div className="w-full flex pl-5 mt-3 mb-8 max-w-[700px]">
+      <div className="flex flex-grow-[3] gap-5 ">
+        <GiSpellBook className="w-10 h-10 shrink-0" />
         <div className="flex flex-col space-y-5 justify-end">
 
           <h1 className="text-2xl pt-3">{title}</h1>
@@ -33,7 +33,7 @@ const BookInfo = ({ title, author, year, handleCollect, handleLike, isCollectCli
           </div>
         </div>
       </div>
-      <div className="flex gap-8 pt-3 ">
+      <div className="flex pt-3 flex-grow gap-5">
         <div className="flex flex-col items-center">
           {!isLikeClicked ?
             <FaRegHeart className="h-6 w-6"
