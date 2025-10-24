@@ -7,7 +7,7 @@ import ProfileApi from "@/api/profile";
 import { NotificationApi } from "@/api/notification";
 import NotificationCard from "@/component/NotificationCard";
 import { GetUserInfoResponse } from "@/inference/UserResponseType";
-import { GetUserReplyHistoryResponse } from "@/inference/UserResponseType";
+import { GetUserReplyHistoryResponse,GetUserCommentLikeHistoryResponse} from "@/inference/UserResponseType";
 import UserLikeOrCollects from "@/component/UserLibrary";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";
@@ -18,13 +18,16 @@ const Profile = () => {
   const params = useParams();
   const dispatch = useDispatch<AppDispatch>();
   const [replyHistory, setReplyHistory]=useState<GetUserReplyHistoryResponse[]>([])
+  const [commentLikeHistory, setCommentLikeHistory]=useState<GetUserCommentLikeHistoryResponse[]>([])
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
         const response = await ProfileApi.getUserInfo(userId)
         dispatch(setUserInfo(response.data.data))//that is action function created by createSlice, setuserInfo=function (payload){return {type: ....., payload:.....}}
         const replyResponse=await NotificationApi.userReplyHistory()
+        const commentLikeResponse=await NotificationApi.userCommlikeHistory()
         setReplyHistory(replyResponse.data.data)
+        setCommentLikeHistory(commentLikeResponse.data.data)
         console.log("reply", replyResponse.data)
       } catch (err: any) {
       }
@@ -33,7 +36,7 @@ const Profile = () => {
   }, [])
   return (
     <div className="flex flex-grow">
-      <NotificationCard replyHistory={replyHistory}/>
+      <NotificationCard replyHistory={replyHistory} commentLikeHistpry={commentLikeHistory}/>
       <div className="flex flex-col flex-grow">
         <ProfileCard userId={userId} />
         <UserLikeOrCollects />

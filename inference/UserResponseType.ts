@@ -26,6 +26,19 @@ export interface GetUserReplyHistoryResponse{
     parentCommentContent:string,
     content:string,
     createdAt:Date,
-    readAt:Date,
+    readAt?:Date,
+
+}
+export interface GetUserCommentLikeHistoryResponse{
+    id:number,
+    bookId:number,
+    receiverUserId:string,
+    actorUserId:string,
+    actorUserName:string,
+    content:string,
+    type:string,
+    commentId:number,
+    createdAt:Date,
+    readAt?:Date,
 
 }

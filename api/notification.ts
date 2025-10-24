@@ -1,6 +1,6 @@
 import { apiNotification } from "@/lib/apiClient"
 import { Response } from "@/inference/ApiResponse"
-import { GetUserReplyHistoryResponse } from "@/inference/UserResponseType"
+import { GetUserReplyHistoryResponse, GetUserCommentLikeHistoryResponse} from "@/inference/UserResponseType"
 
 export const NotificationApi={
 
@@ -9,6 +9,9 @@ export const NotificationApi={
 
     activateNotificationApi:()=>
         apiNotification.get('/Notification/activate'),
+
+    userCommlikeHistory:()=>
+        apiNotification.get<Response<GetUserCommentLikeHistoryResponse[]>>('/Notification/comment-like'),
 
     
 
