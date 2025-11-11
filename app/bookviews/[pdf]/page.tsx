@@ -4,7 +4,7 @@ import BookInfo from "@/component/BookInfo";
 import BookComments from "@/component/BookComments";
 import { useSearchParams } from 'next/navigation';
 import { useParams } from 'next/navigation'
-import { useEffect, useState } from "react";
+import { useEffect, useState,useMemo} from "react";
 import BookApi from "@/api/book";
 import { GetBookInfoResponse ,GetCommentResponse} from "@/inference/BookCommentResponseType";
 import LikeOrCollectApi from "@/api/like_or_collect";
@@ -18,8 +18,10 @@ import NewBookCommentsVersion from "@/component/BookCommentsVersion4";
 type commentLikeInfo = { currentLike: boolean; count: number };
 type likeRoots=Partial<Record<number,Record<number,commentLikeInfo>>>;
 const BookArea= ()=>{
-    const searchParams = useSearchParams();
-    const rawBookId = searchParams.get('bookId');
+    const sp = useSearchParams();
+    const rawBookId = sp.get('bookId');
+    const targetId = sp.get('commentId') ? Number(sp.get('commentId')) : undefined;
+    console.log("targetId", targetId)
     const bookId = rawBookId ? parseInt(rawBookId, 10) : null;
     const params = useParams();
     const pdfFilename = params.pdf;
@@ -32,19 +34,7 @@ const BookArea= ()=>{
     const [isLoading, setIsLoading]=useState<boolean>(false)
     const [userId, setUserId]=useState<string>();
     const [commentlikes, setCommentLikes] = useState<likeRoots>({});
-    const [commentLikeCount, setCommentLikeCount]=useState<number>()
-    const [isCommentLikeClicked, setIsCommentLikeClicked]=useState<boolean>()
-
-    function flattenLikes(root: GetCommentResponse[]): Partial<Record<number, commentLikeInfo>> {
-        const out: Partial<Record<number, commentLikeInfo>> = {};
-        const stack = [...root];
-        while (stack.length) {
-          const c = stack.pop()!;
-          out[c.commentsId] = { currentLike: c.commentLikedByMe, count: c.commentLikesCount };
-          if (c.replies?.length) stack.push(...c.replies);
-        }
-        return out;
-    }
+    
     function flattenCommentLikes(root: GetCommentResponse[]):likeRoots {
         const likesByRoot:likeRoots={};
         for(const c of root){
@@ -55,24 +45,24 @@ const BookArea= ()=>{
           const parentStack=[...c.replies]
           while(parentStack.length){
             const reply=parentStack.pop()!;
-            (likesByRoot[c.commentsId]??{})[reply.commentsId]={currentLike:reply.commentLikedByMe, count:c.commentLikesCount}
+            likesByRoot[c.commentsId]![reply.commentsId]={currentLike:reply.commentLikedByMe, count:reply.commentLikesCount}
             if(reply.replies?.length) parentStack.push(...reply.replies)
           }
 
         }
         return likesByRoot
       }
-     
-
     useEffect(()=>{
         const fetchBooks= async ()=>{
             try{
             const response= await BookApi.getBooksInfoByBookId(bookId)
             const commentResponse=await BookApi.getBookCommentsByBookId(bookId);
             //const seeded = flattenLikes(commentResponse.data.data);
-            const commentLikesStructure=flattenCommentLikes(commentResponse.data.data);
-            setBooksInfo(response.data.data) 
-            setBookComments(commentResponse.data.data)
+            const bookComments=commentResponse.data.data;
+            const commentLikesStructure=flattenCommentLikes(bookComments);
+           
+            
+            setBookComments(bookComments)
             setIsLikeClicked(response.data.data.currentUserLike)
             setIsCollectClicked(response.data.data.currentUserCollect)
             setLikeCount(response.data.data.likeCount)
@@ -168,7 +158,7 @@ const BookArea= ()=>{
                   />
         {/*<BookComments bookId={bookId} bookComments={bookComments} setBookComments={setBookComments} userId={userId}/>*/}
         {/* <NewBookComments bookId={bookId} bookComments={bookComments} setBookComments={setBookComments} userId={userId} /> */}
-        <NewBookCommentsVersion bookId={bookId} bookComments={bookComments} setBookComments={setBookComments} userId={userId} commentlikes={commentlikes} setCommentLikes={setCommentLikes}/> 
+        <NewBookCommentsVersion bookId={bookId} bookComments={bookComments} setBookComments={setBookComments} userId={userId} commentlikes={commentlikes} setCommentLikes={setCommentLikes} targetId={targetId}/> 
            </> }
         </div>
     )

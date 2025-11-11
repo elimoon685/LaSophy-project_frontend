@@ -7,7 +7,7 @@ import {BookOpen} from "lucide-react";
 import {Heart} from "lucide-react";
 import {Star} from "lucide-react";
 import {MessageSquareMore} from "lucide-react";
-
+import { GiBookCover } from "react-icons/gi";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 interface BookCardPros{
@@ -43,7 +43,7 @@ const BookCard=({coverUrl,title, author, year, pdfPath, bookId, commentCount, bo
     <div className="px-3 font-bold text-lg">{title.length>60 ? title.slice(0,61)+"..." : title}</div>
     <div className="mt-1 px-3">By {author}</div>
     <div className="flex py-2 px-1 justify-between items-center"> 
-    <BookOpen className="w-7 h-7 ml-2"/>
+    <GiBookCover className="w-7 h-7 ml-2"/>
     <div className="flex justify-between gap-10 px-4">
     <div className="flex flex-col items-center"><Heart className="w-5 h-5"/><span className="text-sm">{bookLikeCount}</span></div>
     <div className="flex flex-col items-center"><Star className="w-5 h-5"/><span className="text-sm">{bookCollectCount}</span></div>

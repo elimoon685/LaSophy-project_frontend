@@ -1,12 +1,21 @@
 'use client';
-import { useRouter } from 'next/navigation';
+import {useSearchParams, useRouter, useParams} from 'next/navigation';
 import { RiCloseCircleLine } from "react-icons/ri";
 import { useSelector} from 'react-redux';
 import { RootState} from "@/store/store";
 import { useState } from 'react';
 import { UpdateUserInfoFormData } from '@/inference/UserRequestType';
 import ProfileApi from '@/api/profile';
+type UserInfo = {
+  userId: string;
+  userName: string;
+  // version?: number; // 建议加版本字段便于将来迁移
+};
+
 export default function SettingsModal() {
+  const sp = useSearchParams();
+  const open = sp.get('modal') === 'settings';
+  if (!open) return null;
   const router = useRouter();
   const userInfo = useSelector((state: RootState) => state.user.userInfo);
   const closeModal = () => router.back(); // go back to profile
@@ -14,6 +23,9 @@ export default function SettingsModal() {
     userName:"",
     bio:"",
   })
+  const raw = localStorage.getItem("userInfo")
+ 
+  console.log("userinfo", raw)
   const handleUpdateInfo=async()=>{
        const response=await ProfileApi.userInfoUpdate(updateInfo)
        closeModal();
@@ -32,20 +44,21 @@ export default function SettingsModal() {
         
         </div>
         <div className="mb-4">
-        <label htmlFor="username" className="block mb-1">Username:</label>
-        <input className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        <label htmlFor="username" className="block mb-1 font-bold">Username:<span>{}</span></label>
+        {/* <input className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                placeholder={userInfo.userName?? undefined}
                value={updateInfo.userName}
                onChange={(e)=>setUpdateInfo({...updateInfo, userName:e.target.value})}
-         ></input>
+         ></input> */}
+
         </div>
         
         <div className='mb-4'>
-            <label>Email:{userInfo?.email}</label>
+            <label htmlFor="useremail" className="block mb-1 font-bold">Email:<span>{userInfo?.email}</span></label>
   
         </div>
         <div className='mb-4'>
-            <label htmlFor="bio" className="block mb-1">Bio:</label>
+            <label htmlFor="bio" className="block mb-1 font-bold">Bio:</label>
         <input className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                placeholder={userInfo?.bio ?? ""}
                value={updateInfo.bio?? ""}

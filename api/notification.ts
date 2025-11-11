@@ -13,6 +13,9 @@ export const NotificationApi={
     userCommlikeHistory:()=>
         apiNotification.get<Response<GetUserCommentLikeHistoryResponse[]>>('/Notification/comment-like'),
 
+    userNotificationCount:()=>
+        apiNotification.get<Response<number>>('/Notification/unread-account'),
+
     
 
 }

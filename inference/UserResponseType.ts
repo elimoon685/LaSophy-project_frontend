@@ -27,6 +27,7 @@ export interface GetUserReplyHistoryResponse{
     content:string,
     createdAt:Date,
     readAt?:Date,
+    pdfPath:string
 
 }
 export interface GetUserCommentLikeHistoryResponse{
@@ -40,5 +41,6 @@ export interface GetUserCommentLikeHistoryResponse{
     commentId:number,
     createdAt:Date,
     readAt?:Date,
+    pdfPath:string,
 
 }

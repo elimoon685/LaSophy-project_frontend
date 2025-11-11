@@ -62,13 +62,13 @@ const ResetPassword = () => {
           <h1 className="text-3xl font-bold text-center">Update password successful</h1>
           <p className="text-xl text-center">Redirecting to login page in <span className="font-bold">{countDownNumber}</span> second{countDownNumber !== 1 ? 's' : ''}…</p>
         </div>}
-      <div className="flex flex-col px-10 py-4 space-y-8 border rounded-sm shadow-lg drop-shadow-md shadow-black/30">
+      <div className="flex flex-col px-10 py-4 space-y-8 border rounded-sm shadow-lg drop-shadow-md shadow-black/30 max-w-[416px] w-full">
         <div className="flex justify-center">
           <h1 className="text-2xl">Reset your password</h1>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="mb-4 relative">
-            <label htmlFor="newPassword" className="mb-2"> New password</label>
+            <label htmlFor="newPassword" className="block mb-2"> New password</label>
             <div className="relative">
               <input
                 id="newPassword"
@@ -90,7 +90,7 @@ const ResetPassword = () => {
             {passwordFocus && <PasswordRequirements password={newPassword.newPassword} />}
           </div>
           <div className="mb-4 relative">
-            <label htmlFor="confirmNewPassword" >Confirm new password</label>
+            <label htmlFor="confirmNewPassword" className="block mb-2">Confirm new password</label>
             <input
               id="confirmNewPassword"
               type={showPassword.confirmpassword ? "text" : "password"}

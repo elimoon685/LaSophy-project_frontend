@@ -126,9 +126,6 @@ export default function Home() {
           <li><button className="w-2 h-2 bg-amber-100 rounded-full cursor-pointer" onClick={()=>setIndex(pre=>pre=1)}></button></li>
           <li><button className="w-2 h-2 bg-amber-100 rounded-full cursor-pointer" onClick={()=>setIndex(pre=>pre=2)}></button></li>
         </ul>*/}
-        <div
-  className="relative w-20 h-0 border-l-[15px] border-r-[15px] border-b-[26px] xborder-l-transparent border-r-transparent border-b-black"
-/>
             <div className="absolute top-[90%] left-[5%] flex gap-2 z-10">
               {imgPath.map((_, i) => (
                 <button

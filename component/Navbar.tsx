@@ -4,10 +4,7 @@ import { RiLoginCircleLine } from "react-icons/ri";
 import { RiLogoutCircleRLine } from "react-icons/ri";
 import { RxAvatar } from "react-icons/rx";
 import { MdFileUpload } from "react-icons/md";
-// import { CircleUserRound, Upload } from "lucide-react";
-// import { LogIn } from "lucide-react";
-// import { LogOut } from "lucide-react";
-// import { ArrowUpToLine } from "lucide-react";
+import { NotificationApi } from "@/api/notification";
 import { WSContext } from "@/provider/WebsocketProvider";
 import { FcOk } from "react-icons/fc";
 import DropDown from "./DropDown";
@@ -18,17 +15,19 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { JwtPayload } from "@/inference/UserResponseType";
 import Image from "next/image";
+import { RxCrossCircled } from "react-icons/rx";
 import { Cookie } from "next/font/google";
 const Navbar = ({ auth }: { auth: boolean }) => {
   type UserInfo = { userId: string; userName: string };
   const [isOpen, SetIsOpen] = useState<boolean>(false)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isStatusBoxOpen, setIsStatusBoxOpen]=useState<boolean>(false)
   const [user, setUser] = useState<UserInfo>()
   const router = useRouter()
   const ctx = useContext(WSContext)
   if (!ctx) throw new Error("Wrap this tree with <ServerEventsProvider url=...>");
-  const { connected, close} = ctx;
+  const {connected, close, reOpen, setUnReadCount, unReadMesCount} = ctx;
   const toggleDropdown = () => {
     SetIsOpen(prev => !prev);
   }
@@ -41,6 +40,34 @@ const Navbar = ({ auth }: { auth: boolean }) => {
     close(1000, "logout")
     router.push("/");
   }
+  const handleStatusSwitch=(e: React.MouseEvent<SVGElement>)=>{
+    e.stopPropagation();
+    setIsStatusBoxOpen(prev=>!prev)
+  }
+const handleReconnectWs=()=>{
+  
+ reOpen();
+ setIsStatusBoxOpen(prev=>!prev);
+}
+const handleDisconnectWs=()=>{
+  close(1000, "manually turn off");
+  setIsStatusBoxOpen(prev=>!prev);
+
+}
+useEffect(()=>{
+
+  const fetchUnreadMesCount= async ()=>{
+    try{
+      const response=await NotificationApi.userNotificationCount()
+      console.log(response)
+       setUnReadCount(response.data.data)
+    }catch(err: any){
+
+    }
+  }
+  fetchUnreadMesCount()
+
+},[])
 
   useEffect(() => {
     const token = Cookies.get("token")
@@ -48,7 +75,7 @@ const Navbar = ({ auth }: { auth: boolean }) => {
       const { exp } = jwtDecode<JwtPayload>(token);
       const isAuth = exp * 1000 > Date.now();
       if (!isAuth) { Cookies.remove("token"); return; }
-      setIsAuthenticated(prev => prev = true)
+      setIsAuthenticated(true)
       const raw = localStorage.getItem("userInfo")
       if (raw) {
         try {
@@ -85,7 +112,7 @@ const Navbar = ({ auth }: { auth: boolean }) => {
                 defaultOption={
                   <div className="flex items-center font-libre flex-grow">
                     <RxAvatar className="mr-1.5 h-7 w-7" />
-                    Signup
+                    <span>Signup</span>
                   </div>}
                 isOpen={isOpen}
                 toggleDown={toggleDropdown}
@@ -96,18 +123,18 @@ const Navbar = ({ auth }: { auth: boolean }) => {
                 </div>
               </DropDown>
               <button
-                className="flex items-center justify-center p-1 text-gray-300 cursor-pointer font-libre flex-grow"
+                className="flex flex-1 items-center justify-center p-1 text-gray-300 cursor-pointer font-libre flex-grow"
                 onClick={() => router.push("/login")}
               >
                 <RiLoginCircleLine className="mr-1.5 h-6 w-6" />
-                Login
+                <span>Login</span>
               </button>
               <button
-                className="flex items-center justify-center  p-1 text-gray-300 cursor-pointer font-libre"
+                className="flex flex-1 items-center justify-center  p-1 text-gray-300 cursor-pointer font-libre"
                 onClick={() => router.push("/upload")}
               >
                 <MdFileUpload className="mr-1.5 h-6 w-6" />
-                Upload
+                <span>Upload</span>
               </button>
             </>
           ) : (
@@ -118,14 +145,20 @@ const Navbar = ({ auth }: { auth: boolean }) => {
               >
                 <div className="relative inline-block">
                   <RxAvatar className="mr-1.5 h-8 w-8" />
-                  <span className="absolute h-5 w-5 bg-red-500 rounded-xl -top-[15%] -left-[25%]"></span>
+                  <span className="absolute bg-red-500 rounded-full -top-[35%] left-[40%] text-[12px] text-center px-1.5 ">{unReadMesCount}</span>
                 </div>
                 <span className="font-libre">{user?.userName}</span>
-                {connected &&
-                  <FcOk className="w-4 h-4 ml-1" />
+                {
+                <span className="relative">
+                  {connected ? <FcOk className="w-4 h-4 ml-1" onClick={handleStatusSwitch}/> :<RxCrossCircled className="w-4 h-4 ml-1 text-red-400" onClick={handleStatusSwitch}/>}
+                  {isStatusBoxOpen && <div className="absolute flex flex-col z-50 bg-black mt-2 -left-[100%] rounded-md ring-1 ring-gray-400" onClick={(e)=>e.stopPropagation()} onMouseDown={(e) => e.preventDefault()}> 
+                       <span className="flex items-center hover:bg-gray-500 text-sm py-2 px-3 rounded-md"  onClick={(e) => { e.stopPropagation(); handleReconnectWs(); setIsStatusBoxOpen(false);}} onMouseDown={(e) => e.preventDefault()}><FcOk className="w-4 h-4 mr-2 "/> Online</span>
+                       <span className="flex items-center hover:bg-gray-500 text-sm py-2 px-3 rounded-md"  onClick={(e) => { e.stopPropagation(); handleDisconnectWs(); setIsStatusBoxOpen(false);}} onMouseDown={(e) => e.preventDefault()}><RxCrossCircled className="w-4 h-4 mr-2 " />Offline</span>
+                    </div>}
+                 
+                  </span>
                 }
               </button>
-
               <button
                 className="flex items-center justify-center  p-1 text-gray-300 cursor-pointer font-libre flex-grow"
                 onClick={handleLogOut}

@@ -16,7 +16,7 @@ const ProfileCard = ({userId}:ProfileCardPros) => {
 
   
   const openProfile=()=>{
-    router.push(`/profile/${userId}/settings`);; // Only change URL
+    router.push(`/profile/${userId}/?modal=settings`);; // Only change URL
   }
 
   

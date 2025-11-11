@@ -13,7 +13,7 @@ const DropDown=({defaultOption, children, toggleDown, isOpen}:DropdownProps)=>{
     return (
         <div className="relative">
             <button 
-            className="flex items-center justify-center gap-1 p-1 text-gray-300 cursor-pointer"
+            className="flex flex-1 items-center justify-center gap-1 p-1 text-gray-300 cursor-pointer"
             onClick={toggleDown}
             >{defaultOption} {isOpen? <ChevronUp/> : <ChevronDown />}</button>
             {isOpen && <div className="absolute left-12 mt-1 bg-black rounded-md shadow-lg ring-1 ring-gray-400 ring-opacity-5 z-50">

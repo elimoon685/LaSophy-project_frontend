@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef, memo, useCallback, useLayoutEffect } from "react";
+import { useState, useEffect, useRef, memo, useCallback, useLayoutEffect, useMemo} from "react";
 import { RxAvatar } from "react-icons/rx";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { BiLike } from "react-icons/bi";
@@ -12,6 +12,8 @@ import { insertReplyRecursive } from "@/lib/insertReplyRecursive";
 import { DeleteComment } from "@/lib/DeleteComment";
 import LikeOrCollectApi from "@/api/like_or_collect";
 import toast from "react-hot-toast";
+import { findPathInRoot } from "@/lib/findPathInRoot";
+import { promoteTargetThread } from "@/lib/promoteTargetThread";
 import { create } from "domain";
 type CommentDataForm = {
   bookId: number | null;
@@ -25,32 +27,52 @@ type NewBookCommentsPros = {
   userId: string | undefined,
   commentlikes: Partial<Record<number, Record<number, commentLikeInfo>>>,
   setCommentLikes: React.Dispatch<React.SetStateAction<Partial<Record<number, Record<number, commentLikeInfo>>>>>,
+  targetId:number | undefined;
 }
 type Props = {
   rootParent: GetCommentResponse,
   userId: string | undefined,
   bookId: number | null,
   setBookComments: React.Dispatch<React.SetStateAction<GetCommentResponse[]>>,
-  //commentlikes:Partial<Record<number, commentLikeInfo>>,
   setCommentLikes: React.Dispatch<React.SetStateAction<Partial<Record<number, Record<number, commentLikeInfo>>>>>,
-  //getLike:(id: number) => Record<number, commentLikeInfo> |undefined;
   like: Partial<Record<number, commentLikeInfo>>;
+  targetPath:number[];
+  targetId:number | undefined;
 
 };
 type FlatItem = { note: GetCommentResponse; depth: number; parent?: GetCommentResponse };
-const NewBookCommentsVersion = ({ bookId, bookComments, setBookComments, userId, commentlikes, setCommentLikes }: NewBookCommentsPros) => {
+const NewBookCommentsVersion = ({ bookId, bookComments, setBookComments, userId, commentlikes, setCommentLikes, targetId}: NewBookCommentsPros) => {
 
   const [commentIsFocused, setCommentIsFocused] = useState<boolean>();
   const [newComment, setNewComment] = useState<CommentDataForm>({
     bookId: bookId,
     content: "",
   });
-  // const commentLikesRef = useRef(commentlikes);
-  // useLayoutEffect(() => { commentLikesRef.current = commentlikes; console.log("sign 1")}, [commentlikes]);
-  // console.log("commentLike", commentlikes)
-  // const getCommentLikeInfo=useCallback((parentId:number):Record<number, commentLikeInfo> | undefined=>commentLikesRef.current[parentId], []);
+  
+  
+  const {forRender, targetPath}  = useMemo(() => {
+    if (!targetId) return { forRender: bookComments, targetPath: [] };
+    const { list, path } =promoteTargetThread(bookComments, targetId)
+    return { forRender: list, targetPath: path };
+  },
+    [bookComments, targetId]
+  );
+  useEffect(() => {
+    if (!targetId) return;
+  
+    const el = document.getElementById(`comment-${targetId}`);
+    if (el) {
+      el.scrollIntoView({
+        behavior: "smooth",  
+        block: "center",  
+      });
+      el.classList.add("animate-pulse", "bg-gray-100");
 
-
+    setTimeout(() => {
+      el.classList.remove("animate-pulse", "bg-gray-100");
+    }, 2000);
+    }
+  }, [targetId, forRender]);
   const submitFirstLayerComment = async (bookId: number | null, content: string) => {
     if (!content.trim()) return;
     try {
@@ -79,6 +101,7 @@ const NewBookCommentsVersion = ({ bookId, bookComments, setBookComments, userId,
         <div className="flex">
           <RxAvatar className="w-10 h-10 shrink-0" />
           <input className="border-b border-black focus:outline-none px-2 flex-grow"
+            id="comment"
             placeholder="Add your comment"
             value={newComment.content}
             onChange={(e) => setNewComment({ ...newComment, content: e.target.value })}
@@ -101,7 +124,7 @@ const NewBookCommentsVersion = ({ bookId, bookComments, setBookComments, userId,
         }
       </div>
       <div className="flex max-w-[700px] flex-col">
-        {bookComments.map(parent => {
+        {forRender.map(parent => {
           const like = commentlikes[parent.commentsId] ?? {}//{currentLike:parent.commentLikedByMe, count:parent.commentLikesCount};
           return (
             <RenderCommentNote
@@ -112,6 +135,8 @@ const NewBookCommentsVersion = ({ bookId, bookComments, setBookComments, userId,
               setBookComments={setBookComments}
               setCommentLikes={setCommentLikes}
               like={like}
+              targetPath={targetPath}
+              targetId={targetId}
             />
           )
         }
@@ -121,7 +146,7 @@ const NewBookCommentsVersion = ({ bookId, bookComments, setBookComments, userId,
   )
 }
 
-const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, userId, bookId, setBookComments, setCommentLikes, like }: Props) {
+const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, userId, bookId, setBookComments, setCommentLikes, like, targetPath, targetId}: Props) {
   const refMenu = useRef<HTMLDivElement>(null);
   const [newReply, setNewReply] = useState<Record<number, string>>({});
   const [tailVisibleByParent, setTailVisibleByParent] = useState<Record<number, number>>({})
@@ -139,6 +164,14 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
     return () => document.removeEventListener("mousedown", handleMenuOnBlur)
   }, [])
 
+  useEffect(() => {
+    if (targetPath && tailVisibleByParent[rootParent.commentsId] == null) {
+      const init = Math.max(targetPath.length - 2, 0);
+      setTailVisibleByParent(prev => ({ ...prev, [rootParent.commentsId]: init }));
+    }
+  }, [targetPath, rootParent.commentsId, setTailVisibleByParent, tailVisibleByParent]);
+
+  
   // submit the reply or new layer 0 comment
   const submitReply = async (bookId: number | null, content: string, activeReplyId?: number) => {
     if (!activeReplyId && !content.trim()) return;
@@ -223,11 +256,12 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
     try {
       
         const likeResponse = await LikeOrCollectApi.getCurrentCommentLike({ commentId: commentId, isLiked: likeOrNot })
-
-      
-      
     } catch (err: any) {
-
+      if (err.response?.status === 401) {
+        toast.error("Please log in first.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
     }
 
   }
@@ -235,7 +269,9 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
   const singleCommentRender = (comment: GetCommentResponse, depth = 0, parent?: GetCommentResponse) => {
     return (
 
-      <div className={`flex mb-3 ${depth >= 1 && "ml-10"}`} key={comment.commentsId}>
+      <div className={`flex mb-3 ${depth >= 1 && "ml-10"}`} key={comment.commentsId}  id={`comment-${comment.commentsId}`}
+      
+      >
         <RxAvatar className="w-8 h-8 shrink-0" />
         <div className="flex flex-col flex-grow ml-3">
           <div className="flex items-center gap-5">
@@ -304,7 +340,12 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
   const firstLayerReplyRender = firstReply ? singleCommentRender(firstReply, 1, rootParent) : null;
   const flattenComments = flattenCommentsNode(rootParent);
   const tails = firstReply ? flattenComments.slice(1) : flattenComments;
-  const visibleTailsCount = tailVisibleByParent[rootParent.commentsId] ?? 0;
+  const chainExtra = useMemo(() => {
+    if (!targetPath || targetPath.length < 2) return 0;
+    return Math.max(targetPath.length - 2, 0);
+  }, [targetPath]);
+
+  const visibleTailsCount = tailVisibleByParent[rootParent.commentsId] ?? chainExtra;
   const visibleTails = tails.slice(0, visibleTailsCount);
   const remaining = Math.max(tails.length - visibleTailsCount, 0)
 

@@ -129,17 +129,7 @@ const Singup = () => {
               </button>
               </div>
               
-              {show &&
-                <div
-                  className={`mt-2 transition-opacity duration-200 ${show ? "opacity-100" : "opacity-0 pointer-events-none"
-                    }`}
-                  style={{ transitionDelay: show ? "150ms" : "0ms" }}
-                  aria-hidden={!show}
-                >
-                  <PasswordRequirements password={formData.password} />
-
-                </div>
-              }
+              {passwordFocus && <PasswordRequirements password={formData.password} />}
             </div>
             <div className="mb-4 relative">
               <label htmlFor="confirmPassword" className="block mb-2 text-sm font-medium">

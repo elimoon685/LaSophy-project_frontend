@@ -1,10 +1,12 @@
 "use client"
-import { useState } from "react"
+import { useState, useContext} from "react"
 import { FaRegCommentDots } from "react-icons/fa";
 import { FcLikePlaceholder } from "react-icons/fc";
 import { GetUserReplyHistoryResponse, GetUserCommentLikeHistoryResponse } from "@/inference/UserResponseType";
 import { RxAvatar } from "react-icons/rx";
 import { timeAgo } from "@/lib/CalculateTime";
+import { WSContext } from "@/provider/WebsocketProvider";
+import { useRouter } from "next/navigation";
 //I hope to get the wesocket data here
 //and get the history data and put here
 // so i need to use websocket context 
@@ -13,8 +15,13 @@ type NotificationProps = {
   commentLikeHistpry: GetUserCommentLikeHistoryResponse[],
 }
 const NotificationCard = ({ replyHistory, commentLikeHistpry }: NotificationProps) => {
-
+  const ctx = useContext(WSContext);
+  const router=useRouter();
+  if (!ctx) throw new Error("Wrap this tree with <ServerEventsProvider url=...>");
+  const {unReadMesCount, commentLikeMessage, replymessage} = ctx;
   const [panel, setPanel] = useState<"reply" | "commentlike">("reply")
+  console.log("reply", replyHistory)
+  console.log("like", commentLikeHistpry)
   return (
     <div className="flex flex-grow max-w-[400px]">
       <div className="flex flex-col flex-grow p-3">
@@ -34,10 +41,13 @@ const NotificationCard = ({ replyHistory, commentLikeHistpry }: NotificationProp
             (
               replyHistory.map(reply => (
 
-                <div className="flex border-b-1 border-gray-200 gap-2 py-2">
-                  <RxAvatar className="w-8 h-8 " />
+                <div className="flex border-b-1 border-gray-200 gap-2 py-2 cursor-pointer"
+                  onClick={()=>router.push(`/bookviews/${reply.pdfPath}?bookId=${reply.bookId}&commentId=${reply.commentId}`)}         
+                >
+                 
+                  <RxAvatar className="w-9 h-9 " />
                   <div className="flex flex-col w-full">
-                    <p className="">{reply.actorUserName}</p>
+                    <p className="flex justify-between">{reply.actorUserName} { !reply.readAt && <span className="w-2 h-2 rounded-2xl bg-red-500 self-end"> </span>}</p>
                     <div className="flex flex-col gap-1">
                       <p className="flex text-sm text-gray-500"><span className="flex-1">reply to your comment</span> <span className="flex-1">{timeAgo(reply.createdAt)}</span></p>
                       <p className="ml-3">{reply.content}</p>
@@ -50,9 +60,11 @@ const NotificationCard = ({ replyHistory, commentLikeHistpry }: NotificationProp
 
           }
           {panel === "commentlike" && 
-          (  commentLikeHistpry.map(like=>(
+          (commentLikeHistpry.map(like=>(
 
-            <div className="flex border-b-1 border-gray-200 gap-2 py-2">
+            <div className="flex border-b-1 border-gray-200 gap-2 py-2 cursor-pointer"
+            onClick={()=>router.push(`/bookviews/${like.pdfPath}?bookId=${like.bookId}&commentId=${like.commentId}`)}
+            >
                <RxAvatar className="w-8 h-8 " />
                <div className="flex flex-col w-full"> 
                     <p className="">{like.actorUserName}</p>

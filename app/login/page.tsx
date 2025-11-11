@@ -71,7 +71,7 @@ const Login = () => {
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <div className="flex mb-2 justify-between items-center">
-                <label htmlFor="email" className=" text-sm font-medium">
+                <label htmlFor="email" className="block text-sm font-medium">
                   Email
                 </label>
                 <div className="flex gap-2 items-center">
@@ -95,8 +95,8 @@ const Login = () => {
             </div>
 
             <div className="mb-4">
-              <div className='flex justify-between'>
-                <label htmlFor="password" className="block mb-2 text-sm font-medium">
+              <div className='flex justify-between mb-2 items-center'>
+                <label htmlFor="password" className="block text-sm font-medium">
                   Password
                 </label>
                 <Link href="/forget-password" className='text-sm text-shadow-black hover:underline hover:font-bold'>Forget your password</Link>
