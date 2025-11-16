@@ -13,11 +13,6 @@ export interface LoginFormData{
     role:"User"|"Admin"
 }
 
-export interface UpdateUserInfoFormData{
-
-     bio:string|null,
-     userName:string,
-}
 
 export interface UserIdDataForm{
     userId: ParamValue
@@ -26,7 +21,6 @@ export interface UserIdDataForm{
 export interface UpdateUserInfoFormData{
 
     bio:string|null,
-    userName:string,
 }
 export interface ResetPasswordFormData{
     email:string|null

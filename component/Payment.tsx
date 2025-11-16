@@ -56,13 +56,13 @@ const Payment = () => {
   const FinalAmount = selected === "custom" && (customAmount !== "" && customAmount !== "0") ? customAmount : donateAmount
   const NumberAmount = Number(FinalAmount).toFixed(2);
   return (
-    <div className="flex flex-col xborder border-black flex-1 p-10 max-w-[400px] shadow-lg drop-shadow-md shadow-black/30">
+    <div className="flex flex-col xborder border-black flex-1 p-5 max-w-[400px] shadow-lg drop-shadow-md shadow-black/30">
       <div className="flex flex-col">
         <div className="flex items-center mb-3">
           <button className="w-6 h-6 rounded-full bg-black text-gray-300 mr-3">1</button>
           <p className="text-2xl">Choose amount(AUD)</p>
         </div>
-        <div className="grid grid-cols-[repeat(4,minmax(50px,100px))] gap-4">
+        <div className="grid grid-cols-[repeat(1, minmax(50px,100px))] gap-4">
 
           <div className="">
             <input type="radio" className="sr-only peer" id="amt-1" name="amount-selector" value="1" />

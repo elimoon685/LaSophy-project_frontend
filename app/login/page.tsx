@@ -59,11 +59,11 @@ const Login = () => {
   return (
     <div className="min-h-screen w-screen flex flex-col items-center justify-center">
       <div className="flex flex-row  items-center space-x-40">
-        <div className=" w-full flex flex-col items-start space-y-2">
+        <div className=" w-full hidden flex-col items-start space-y-2 md:flex">
           <h1 className="text-2xl"> As moonlight follower, spreading the moonlight to the world</h1>
           <p className="text-xl">Login your account to explore the world you never know</p>
         </div>
-        <div className="w-full flex flex-col border px-10 py-4 space-y-8 rounded-sm shadow-lg shadow-black/60">
+        <div className="w-full flex flex-col border px-10 py-4 space-y-8 rounded-sm shadow-lg shadow-black/30">
           <div className="flex flex-col items-center space-y-4">
             <h1 className="text-2xl">Login in</h1>
             <h1 className='text-gray-600'>Enter details to log in your account</h1>

@@ -21,7 +21,6 @@ const BookArea= ()=>{
     const sp = useSearchParams();
     const rawBookId = sp.get('bookId');
     const targetId = sp.get('commentId') ? Number(sp.get('commentId')) : undefined;
-    console.log("targetId", targetId)
     const bookId = rawBookId ? parseInt(rawBookId, 10) : null;
     const params = useParams();
     const pdfFilename = params.pdf;
@@ -57,11 +56,9 @@ const BookArea= ()=>{
             try{
             const response= await BookApi.getBooksInfoByBookId(bookId)
             const commentResponse=await BookApi.getBookCommentsByBookId(bookId);
-            //const seeded = flattenLikes(commentResponse.data.data);
             const bookComments=commentResponse.data.data;
             const commentLikesStructure=flattenCommentLikes(bookComments);
-           
-            
+            setBooksInfo(response.data.data)
             setBookComments(bookComments)
             setIsLikeClicked(response.data.data.currentUserLike)
             setIsCollectClicked(response.data.data.currentUserCollect)
@@ -90,7 +87,6 @@ const BookArea= ()=>{
     const handleLike=async(likeOrNot:boolean)=>{
         console.log("likeorNot", likeOrNot)
     try{
-        debugger
         if(likeOrNot){
             const response=await LikeOrCollectApi.getCurrentLikeCount({
                 bookId:booksInfo?.id,

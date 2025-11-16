@@ -20,7 +20,6 @@ export default function SettingsModal() {
   const userInfo = useSelector((state: RootState) => state.user.userInfo);
   const closeModal = () => router.back(); // go back to profile
   const [updateInfo, setUpdateInfo]=useState<UpdateUserInfoFormData>({
-    userName:"",
     bio:"",
   })
   const raw = localStorage.getItem("userInfo")
@@ -44,7 +43,7 @@ export default function SettingsModal() {
         
         </div>
         <div className="mb-4">
-        <label htmlFor="username" className="block mb-1 font-bold">Username:<span>{}</span></label>
+        <label htmlFor="username" className="block mb-1 font-bold">Username:<span></span></label>
         {/* <input className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                placeholder={userInfo.userName?? undefined}
                value={updateInfo.userName}

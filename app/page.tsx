@@ -1,5 +1,4 @@
 'use client'
-import Footer from "@/component/footer";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,7 +9,6 @@ import { UnifrakturMaguntia, IM_Fell_English } from 'next/font/google';
 import { MdOutlineArrowBackIosNew } from "react-icons/md";
 import { MdOutlineArrowForwardIos } from "react-icons/md";
 import { BsFillPeopleFill } from "react-icons/bs";
-const blackletter = UnifrakturMaguntia({ weight: '400', subsets: ['latin'] });
 export default function Home() {
   const router = useRouter()
   const imgPath = ["/aboutImage.png", "/donateImage.png", "/joinUsImage.png"]
@@ -82,8 +80,8 @@ export default function Home() {
       </ul>
       {/* how to achieve */}
       
-        <div className="flex mt-10 ">
-          <ul className="flex flex-col bg-black gap-2 flex-1 max-w-[400px] mr-10 ring-black">
+        <div className="flex mt-5 w-full">
+          {/* <ul className="flex flex-col bg-black gap-2 flex-1 max-w-[400px] mr-10 ring-black">
             <li className="text-gray-300 relative group font-libre font-bold text-2xl hover:bg-white hover:text-black">Tartary
               <ul className="absolute hidden left-[100%] bottom-[0] group-hover:flex bg-white z-50 flex gap-5 w-[500px]">
                 <li className="hover:bg-black hover:text-gray-300 group/sub relative flex-1 text-center">Invasion
@@ -107,7 +105,8 @@ export default function Home() {
             <li className="text-gray-300 relative group text-2xl font-libre font-bold hover:bg-white hover:text-black">Vietnam</li>
             <li className="text-gray-300 relative group text-2xl font-libre font-bold hover:bg-white hover:text-black">Japan</li>
             <li className="text-gray-300 relative group text-2xl font-libre font-bold hover:bg-white hover:text-black">Ming</li>
-          </ul>
+          </ul> */}
+          <div className="flex justify-center flex-grow">
           <div className="relative" ref={imgHover} onMouseEnter={mouseEnter} onMouseLeave={mouseLeave}>
             <Image src={imgPath[index]} alt={imgPath[index].toUpperCase()} width={500} height={300} className="transition-transform duration-500 ease-in-out">
             </Image>
@@ -140,6 +139,7 @@ export default function Home() {
                 />
               ))}
             </div>
+          </div>
           </div>
         </div>
       

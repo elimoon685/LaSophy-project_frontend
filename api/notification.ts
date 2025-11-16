@@ -15,7 +15,10 @@ export const NotificationApi={
 
     userNotificationCount:()=>
         apiNotification.get<Response<number>>('/Notification/unread-account'),
-
     
-
+    markReplyNotificationRead:(id:number)=>
+        apiNotification.patch<Response<boolean>>(`/Notification/reply/mark-read/${id}`),
+    
+    markLikeNotificationRead:(id:number)=>
+        apiNotification.patch<Response<boolean>>(`/Notification/like/mark-read/${id}`)
 }

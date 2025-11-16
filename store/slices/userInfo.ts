@@ -25,8 +25,11 @@ export interface UserState {
       setUserInfo:(state, action: PayloadAction<UserState["userInfo"]>)=>{
         state.userInfo = action.payload;
       },
+      setBio(state, action: PayloadAction<string | null>) {
+        state.userInfo.bio = action.payload; 
+      },
     },
   });
   //
-  export const { setUserInfo } = userSlice.actions;
+  export const { setUserInfo,setBio} = userSlice.actions;
 export default userSlice.reducer;

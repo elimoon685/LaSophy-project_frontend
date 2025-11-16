@@ -13,6 +13,7 @@ import { DeleteComment } from "@/lib/DeleteComment";
 import LikeOrCollectApi from "@/api/like_or_collect";
 import toast from "react-hot-toast";
 import { findPathInRoot } from "@/lib/findPathInRoot";
+import { useRouter } from "next/navigation";
 import { promoteTargetThread } from "@/lib/promoteTargetThread";
 import { create } from "domain";
 type CommentDataForm = {
@@ -59,7 +60,6 @@ const NewBookCommentsVersion = ({ bookId, bookComments, setBookComments, userId,
   );
   useEffect(() => {
     if (!targetId) return;
-  
     const el = document.getElementById(`comment-${targetId}`);
     if (el) {
       el.scrollIntoView({
@@ -147,22 +147,23 @@ const NewBookCommentsVersion = ({ bookId, bookComments, setBookComments, userId,
 }
 
 const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, userId, bookId, setBookComments, setCommentLikes, like, targetPath, targetId}: Props) {
-  const refMenu = useRef<HTMLDivElement>(null);
+  const btnRefs = useRef<Record<number, HTMLButtonElement | null>>({});
   const [newReply, setNewReply] = useState<Record<number, string>>({});
   const [tailVisibleByParent, setTailVisibleByParent] = useState<Record<number, number>>({})
   const [activeReplyId, setActiveReplyId] = useState<number>()
   const [activeDeleteMenu, setActiveDeleteMenu] = useState<number>();
-
+  const router = useRouter()
   //useEffect
   useEffect(() => {
+    if(activeDeleteMenu==undefined) return;
     const handleMenuOnBlur = (e: MouseEvent) => {
-      if (refMenu.current && !refMenu.current.contains(e.target as Node)) {
+      if (btnRefs.current[activeDeleteMenu] && ! btnRefs.current[activeDeleteMenu].contains(e.target as Node)) {
         setActiveDeleteMenu(undefined)
       }
     }
     document.addEventListener("mousedown", handleMenuOnBlur)
     return () => document.removeEventListener("mousedown", handleMenuOnBlur)
-  }, [])
+  }, [activeDeleteMenu])
 
   useEffect(() => {
     if (targetPath && tailVisibleByParent[rootParent.commentsId] == null) {
@@ -272,7 +273,7 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
       <div className={`flex mb-3 ${depth >= 1 && "ml-10"}`} key={comment.commentsId}  id={`comment-${comment.commentsId}`}
       
       >
-        <RxAvatar className="w-8 h-8 shrink-0" />
+        <RxAvatar className="w-8 h-8 shrink-0" onClick={()=>router.push(`/profile/${comment.userId}?username=${comment.createdBy}`)}/>
         <div className="flex flex-col flex-grow ml-3">
           <div className="flex items-center gap-5">
             <span className="text-m font-bold">@{comment.createdBy}</span>
@@ -292,7 +293,7 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
           {activeReplyId === comment.commentsId &&
             <>
               <div className="flex">
-                <RxAvatar className="w-8 h-8" />
+                <RxAvatar className="w-8 h-8"/>
                 <input
                   className="border-b border-black focus:outline-none px-2 flex-grow"
                   placeholder={`${depth > 1 ? `Reply to @${comment.createdBy}` : "Add your comment"}`}
@@ -319,13 +320,12 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
         </div>
         <div className="relative">
           <button className="flex rounded-full w-8 h-8 items-center justify-center active:bg-gray-300 transition-colors duration-600 ease-out 
-            ">
+            " ref={el=>{btnRefs.current[comment.commentsId] = el}}>
             <HiOutlineDotsVertical className="shrink-0 cursor-pointer h-6 w-6 rounded-full"
-
-              onClick={() => setActiveDeleteMenu(comment.commentsId)} />
+              onClick={() => setActiveDeleteMenu(prev=>prev===comment.commentsId? undefined:comment.commentsId)} />
           </button>
           {activeDeleteMenu === comment.commentsId && (
-            <div ref={refMenu} className="absolute bg-gray-200 rounded-xl flex flex-col left-[100%] py-1 px-3 w-[80px] top-[0%]">
+            <div  className="absolute bg-gray-200 rounded-xl flex flex-col left-[100%] py-1 px-3 w-[80px] top-[0%]">
               <button className="hover:font-bold cursor-pointer p-0">Report</button>
               {comment.userId === userId && <button className="hover:font-bold cursor-pointer p-0" onClick={() => deleteComment(comment.commentsId)}>Delete</button>}
             </div>

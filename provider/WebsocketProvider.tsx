@@ -215,8 +215,8 @@ export function WebsocketProvider({ url, auth, children }: { url: string, auth: 
     setConnected(false)
   }, [])//what is probelm, suppose every re-render, close reference create, 
   const reopen = useCallback(() => {
-    connect()
-  }, [])
+     connect()
+  }, [connect])
   const value = useMemo(() => (
     { connected: connected, 
       close: close, 
@@ -228,7 +228,7 @@ export function WebsocketProvider({ url, auth, children }: { url: string, auth: 
       commentLikeMessage:commentLikeMessage,
       setCommentLikeMessage:setCommentLikeMessage,
     }), 
-      [connected, close, replyMessage,commentLikeMessage, unreadCount,open])
+      [connected, close, replyMessage,commentLikeMessage,unreadCount,reopen])
   //const value1={connected: connected, close:close}
 
   return <WSContext.Provider value={value}> {children}</WSContext.Provider>

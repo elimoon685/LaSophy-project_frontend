@@ -66,7 +66,7 @@ const Singup = () => {
   return (
     <div className="min-h-screen w-screen flex flex-col items-center justify-center">
       <div className="flex flex-row  items-center space-x-40">
-        <div className=" w-full flex flex-col items-start space-y-2 ">
+        <div className=" w-full hidden flex-col items-start space-y-2 md:flex">
           <h1 className="text-2xl"> Welcome to the Lasophy, starting following the moonlight!</h1>
           <p className="text-xl">Sign up an account to explore the world you never know</p>
         </div>

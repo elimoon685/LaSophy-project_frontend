@@ -3,7 +3,7 @@ const Sider=()=>{
 
 
 return (
-    <aside className="flex w-[40px] bg-black">
+    <aside className="hidden w-[40px] bg-black md:flex">
 
     </aside>
 )

@@ -44,3 +44,17 @@ export interface GetUserCommentLikeHistoryResponse{
     pdfPath:string,
 
 }
+export interface GetUserBookLikeResponse{
+    bookId:number,
+    pdfPath:string,
+    likedAt:Date,
+    title:string,
+    imgPath:string,
+}
+export interface GetUserBookCollectResponse{
+    bookId:number,
+    pdfPath:string,
+    collectedAt:Date,
+    title:string,
+    imgPath:string,
+}
