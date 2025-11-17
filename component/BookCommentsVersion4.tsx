@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef, memo, useCallback, useLayoutEffect, useMemo} from "react";
+import { useState, useEffect, useRef, memo, useCallback, useLayoutEffect, useMemo } from "react";
 import { RxAvatar } from "react-icons/rx";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { BiLike } from "react-icons/bi";
@@ -28,7 +28,7 @@ type NewBookCommentsPros = {
   userId: string | undefined,
   commentlikes: Partial<Record<number, Record<number, commentLikeInfo>>>,
   setCommentLikes: React.Dispatch<React.SetStateAction<Partial<Record<number, Record<number, commentLikeInfo>>>>>,
-  targetId:number | undefined;
+  targetId: number | undefined;
 }
 type Props = {
   rootParent: GetCommentResponse,
@@ -37,42 +37,52 @@ type Props = {
   setBookComments: React.Dispatch<React.SetStateAction<GetCommentResponse[]>>,
   setCommentLikes: React.Dispatch<React.SetStateAction<Partial<Record<number, Record<number, commentLikeInfo>>>>>,
   like: Partial<Record<number, commentLikeInfo>>;
-  targetPath:number[];
-  targetId:number | undefined;
+  targetPath: number[];
+  targetId: number | undefined;
 
 };
 type FlatItem = { note: GetCommentResponse; depth: number; parent?: GetCommentResponse };
-const NewBookCommentsVersion = ({ bookId, bookComments, setBookComments, userId, commentlikes, setCommentLikes, targetId}: NewBookCommentsPros) => {
-
+const NewBookCommentsVersion = ({ bookId, bookComments, setBookComments, userId, commentlikes, setCommentLikes, targetId }: NewBookCommentsPros) => {
+  const hasShownDeletedToast = useRef(false);
   const [commentIsFocused, setCommentIsFocused] = useState<boolean>();
   const [newComment, setNewComment] = useState<CommentDataForm>({
     bookId: bookId,
     content: "",
   });
-  
-  
-  const {forRender, targetPath}  = useMemo(() => {
+
+
+  const { forRender, targetPath } = useMemo(() => {
     if (!targetId) return { forRender: bookComments, targetPath: [] };
-    const { list, path } =promoteTargetThread(bookComments, targetId)
+    const { list, path } = promoteTargetThread(bookComments, targetId)
     return { forRender: list, targetPath: path };
   },
     [bookComments, targetId]
   );
   useEffect(() => {
     if (!targetId) return;
+    if (targetPath.length > 0) return;
+    if (hasShownDeletedToast.current) return;
+  
+    hasShownDeletedToast.current = true;
+    toast.error("This comment has been deleted.");
+  }, [targetId, targetPath.length]);
+
+  useEffect(() => {
+    if (!targetId) return;
     const el = document.getElementById(`comment-${targetId}`);
     if (el) {
       el.scrollIntoView({
-        behavior: "smooth",  
-        block: "center",  
+        behavior: "smooth",
+        block: "center",
       });
       el.classList.add("animate-pulse", "bg-gray-100");
 
-    setTimeout(() => {
-      el.classList.remove("animate-pulse", "bg-gray-100");
-    }, 2000);
+      setTimeout(() => {
+        el.classList.remove("animate-pulse", "bg-gray-100");
+      }, 2000);
     }
   }, [targetId, forRender]);
+
   const submitFirstLayerComment = async (bookId: number | null, content: string) => {
     if (!content.trim()) return;
     try {
@@ -146,7 +156,7 @@ const NewBookCommentsVersion = ({ bookId, bookComments, setBookComments, userId,
   )
 }
 
-const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, userId, bookId, setBookComments, setCommentLikes, like, targetPath, targetId}: Props) {
+const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, userId, bookId, setBookComments, setCommentLikes, like, targetPath, targetId }: Props) {
   const btnRefs = useRef<Record<number, HTMLButtonElement | null>>({});
   const [newReply, setNewReply] = useState<Record<number, string>>({});
   const [tailVisibleByParent, setTailVisibleByParent] = useState<Record<number, number>>({})
@@ -155,14 +165,15 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
   const router = useRouter()
   //useEffect
   useEffect(() => {
-    if(activeDeleteMenu==undefined) return;
+    if (activeDeleteMenu == undefined) return;
     const handleMenuOnBlur = (e: MouseEvent) => {
-      if (btnRefs.current[activeDeleteMenu] && ! btnRefs.current[activeDeleteMenu].contains(e.target as Node)) {
+      console.log(btnRefs.current[activeDeleteMenu])
+      if (btnRefs.current[activeDeleteMenu] && !btnRefs.current[activeDeleteMenu].contains(e.target as Node)) {
         setActiveDeleteMenu(undefined)
       }
     }
-    document.addEventListener("mousedown", handleMenuOnBlur)
-    return () => document.removeEventListener("mousedown", handleMenuOnBlur)
+    document.addEventListener("click", handleMenuOnBlur)
+    return () => document.removeEventListener("click", handleMenuOnBlur)
   }, [activeDeleteMenu])
 
   useEffect(() => {
@@ -172,7 +183,7 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
     }
   }, [targetPath, rootParent.commentsId, setTailVisibleByParent, tailVisibleByParent]);
 
-  
+
   // submit the reply or new layer 0 comment
   const submitReply = async (bookId: number | null, content: string, activeReplyId?: number) => {
     if (!activeReplyId && !content.trim()) return;
@@ -211,10 +222,18 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
     setActiveReplyId(undefined);
   }
   //delete the comment
-  const deleteComment = (commentId: number) => {
+  const deleteComment = async (commentId: number) => {
     setBookComments(prev => DeleteComment(prev, commentId))
+    try {
+      await BookApi.DeleteComment(commentId)
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        toast.error("Please log in first.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+    }
   }
-
 
   // For reply input
   const onBlur = (e: React.FocusEvent<HTMLInputElement>, id: number) => {
@@ -255,8 +274,8 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
       return { ...prev, [parentId]: { ...curRoot, [commentId]: { currentLike: likeOrNot, count: Math.max(0, baseCount + delta) } } }
     });
     try {
-      
-        const likeResponse = await LikeOrCollectApi.getCurrentCommentLike({ commentId: commentId, isLiked: likeOrNot })
+
+      const likeResponse = await LikeOrCollectApi.getCurrentCommentLike({ commentId: commentId, isLiked: likeOrNot })
     } catch (err: any) {
       if (err.response?.status === 401) {
         toast.error("Please log in first.");
@@ -266,14 +285,25 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
     }
 
   }
+  const handleAvatarClick = (createdBy: string, targetedUserId: string) => {
+    if (!userId) {
+      toast.error("Please login first");
+      return;
+    }
+    if (!targetedUserId) {
+      toast.error("User not exist");
+      return;
+    }
+    router.push(`/profile/${targetedUserId}?username=${createdBy}`)
+  }
   // for every comment and reply render 
   const singleCommentRender = (comment: GetCommentResponse, depth = 0, parent?: GetCommentResponse) => {
     return (
 
-      <div className={`flex mb-3 ${depth >= 1 && "ml-10"}`} key={comment.commentsId}  id={`comment-${comment.commentsId}`}
-      
+      <div className={`flex mb-3 ${depth >= 1 && "ml-10"}`} key={comment.commentsId} id={`comment-${comment.commentsId}`}
+
       >
-        <RxAvatar className="w-8 h-8 shrink-0" onClick={()=>router.push(`/profile/${comment.userId}?username=${comment.createdBy}`)}/>
+        <RxAvatar className="w-8 h-8 shrink-0" onClick={() => handleAvatarClick(comment.createdBy, comment.userId)} />
         <div className="flex flex-col flex-grow ml-3">
           <div className="flex items-center gap-5">
             <span className="text-m font-bold">@{comment.createdBy}</span>
@@ -293,7 +323,7 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
           {activeReplyId === comment.commentsId &&
             <>
               <div className="flex">
-                <RxAvatar className="w-8 h-8"/>
+                <RxAvatar className="w-8 h-8" />
                 <input
                   className="border-b border-black focus:outline-none px-2 flex-grow"
                   placeholder={`${depth > 1 ? `Reply to @${comment.createdBy}` : "Add your comment"}`}
@@ -320,14 +350,14 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
         </div>
         <div className="relative">
           <button className="flex rounded-full w-8 h-8 items-center justify-center active:bg-gray-300 transition-colors duration-600 ease-out 
-            " ref={el=>{btnRefs.current[comment.commentsId] = el}}>
+            " ref={el => { btnRefs.current[comment.commentsId] = el }}>
             <HiOutlineDotsVertical className="shrink-0 cursor-pointer h-6 w-6 rounded-full"
-              onClick={() => setActiveDeleteMenu(prev=>prev===comment.commentsId? undefined:comment.commentsId)} />
+              onClick={() => setActiveDeleteMenu(prev => prev === comment.commentsId ? undefined : comment.commentsId)} />
           </button>
           {activeDeleteMenu === comment.commentsId && (
-            <div  className="absolute bg-gray-200 rounded-xl flex flex-col left-[100%] py-1 px-3 w-[80px] top-[0%]">
+            <div className="absolute bg-gray-200 rounded-xl flex flex-col left-[100%] py-1 px-3 w-[80px] top-[0%]">
               <button className="hover:font-bold cursor-pointer p-0">Report</button>
-              {comment.userId === userId && <button className="hover:font-bold cursor-pointer p-0" onClick={() => deleteComment(comment.commentsId)}>Delete</button>}
+              {comment.userId === userId && <button className="hover:font-bold cursor-pointer p-0" onClick={(e) => {e.preventDefault(); e.stopPropagation(); deleteComment(comment.commentsId)}}>Delete</button>}
             </div>
           )}
         </div>

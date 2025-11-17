@@ -20,13 +20,18 @@ const UserLikeOrCollects=({bookLikeList, bookCollectList, setBookLikeList,  setB
     const [panel, setPanel]=useState<"booklike"|"bookcollect">("booklike")
     return (
         <div className="flex flex-col flex-grow min-h-0">
-            <div className="flex gap-4 mt-2">
-            <button className="flex px-2 py-1 bg-gray-100 hover:ring-1 ring-black rounded-2xl items-center gap-2 " onClick={()=>setPanel(prev=>prev="booklike")}><FaRegHeart/>
+            <div className="flex flex-col w-fit">
+            <div className="flex gap-8 mt-2">
+            <button className={`flex px-2 py-1 bg-gray-100 rounded-2xl items-center gap-2 ${panel==="booklike" && "ring-black ring-1" }`} onClick={()=>setPanel(prev=>prev="booklike")}><FaRegHeart/>
              Like
             </button>
-            <button className="flex px-2 py-1 bg-gray-100 hover:ring-1 ring-black rounded-2xl items-center gap-2" onClick={()=>setPanel(prev=>prev="bookcollect")}><FaRegStar/>
+            <button className={`flex px-2 py-1 bg-gray-100 rounded-2xl items-center gap-2 ${panel==="bookcollect" && "ring-black ring-1" }`} onClick={()=>setPanel(prev=>prev="bookcollect")}><FaRegStar/>
              Collect
             </button>
+            </div>
+            <div className="relative h-1">
+                <div className={`absolute w-[20px] top-[100%] bg-black h-[2px] ${panel==="booklike" ? "left-[12%]": "left-[72%]"} transition-[left] duration-400 ease-in-out`}></div>
+            </div>
             </div>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(80px,170px))] gap-6 mt-2 relative px-3 py-3 rounded-xl overflow-y-auto">
             {panel==="booklike" && (

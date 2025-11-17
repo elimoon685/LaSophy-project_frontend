@@ -41,7 +41,7 @@ const BookCard=({coverUrl,title, author, year, pdfPath, bookId, commentCount, bo
         />
     </div>
     <div className="px-3 font-bold text-lg">{title.length>60 ? title.slice(0,61)+"..." : title}</div>
-    <div className="mt-1 px-3">By {author}</div>
+    <div className="mt-1 px-3">By {author.length>30? author.slice(0,25)+"...":author}</div>
     <div className="flex py-2 px-1 justify-between items-center"> 
     <GiBookCover className="w-7 h-7 ml-2"/>
     <div className="flex justify-between gap-10 px-4">

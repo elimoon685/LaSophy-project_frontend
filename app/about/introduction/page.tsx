@@ -44,7 +44,7 @@ return(
 </div>
 
 </div>
-<div className="mt-5 ml-10 max-w-[1000px] max-h-[400px] mb-10 overflow-y-auto shadow-lg drop-shadow-md shadow-black/30 py-5 px-5">
+<div className="mt-5 ml-10 max-w-[1000px] max-h-[calc(100vh-400.828px)] mb-10 overflow-y-auto shadow-lg drop-shadow-md shadow-black/30 py-5 px-5">
 <p className="font-libre text-2xl indent-8">As an enthusiast of ancient scripts and history, I enjoy reading all kinds of historical books, especially those that present different countries’ perspectives on the same historical events. How they view the same event is of great importance to historical research.</p>
 <br></br>
 <p className="font-libre text-2xl indent-8">The 17th century was destined to be a period of great upheaval. In East Asia, and indeed across the whole of Asia, an extremely significant event occurred—one that reshaped the regional order. This event still continues to influence China and Asia today in politics, diplomacy, culture, and many other fields: the invasion and occupation of the Ming dynasty by the Qing army.</p>

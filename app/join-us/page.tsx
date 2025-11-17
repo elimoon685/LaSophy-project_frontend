@@ -44,7 +44,7 @@ return(
 </div>
 
 </div>
-<div className="mt-5 ml-10 max-w-[1000px] max-h-[400px] mb-10 overflow-y-auto shadow-lg drop-shadow-md shadow-black/30 py-5 px-5">
+<div className="mt-5 ml-10 max-w-[1000px] max-h-[calc(100vh-400.828px)] mb-10 overflow-y-auto shadow-lg drop-shadow-md shadow-black/30 py-5 px-5">
 <p className="font-libre text-2xl indent-8">We welcome anyone with an independent perspective on history—people who can form their own systematic way of understanding the past. You should neither overlook large-scale historical trends, nor become obsessed with trivial, microscopic events. You should be able to use your own framework to judge the nature of historical events, to anticipate historical developments, and even to interpret the political behaviour of contemporary states.</p>
 <br/>
 <p className="font-libre text-2xl indent-8">You should also be capable of understanding the language and context of different civilizations and intellectual traditions—for example, Qing-dynasty Confucian thought, modern Marxism, Islamic civilization, contemporary Europe, modern Britain, the U.S. Democratic Party, the Republican Party, and so on.</p>

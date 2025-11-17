@@ -41,6 +41,7 @@ const Profile = () => {
       const isSelf = loginUserId !== null && loginUserId === userId;
       
         const response = await ProfileApi.getUserInfo(userId)
+        console.log(response.data)
         setuserInfo({userName:response.data.data.userName,
         email:response.data.data.email,
         bio:response.data.data.bio,

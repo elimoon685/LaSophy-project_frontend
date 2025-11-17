@@ -52,7 +52,7 @@ const ProfileCard = ({userId, showEditButton, userStateInfo}:ProfileCardPros) =>
        
       </div>
       </div>
-      <h1 className="flex items-center pl-4"><span className="flex items-center gap-0.5 text-xl"></span><span>{userStateInfo.bio}</span></h1>
+      <h1 className="flex items-center pl-4"><span className="flex items-center gap-0.5 text-xl"></span><span>{showEditButton ? userInfo?.bio : userStateInfo.bio}</span></h1>
       </div>
     </div>
     

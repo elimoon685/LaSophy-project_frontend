@@ -19,14 +19,16 @@ export default function Success() {
   }, [])
 
   return (
-    <div className="flex p-8">
-      <h1 className="text-2xl font-bold">Thank you for your donation!</h1>
-      <p className="mt-2">
+    <div className="flex p-8 justify-center">
+      <div className="flex flex-col font-bold px-20 py-10 bg-gray-300 shadow-lg drop-shadow-md shadow-black/30">
+      <h1 className='text-2xl'>Thank you for your donation!</h1>
+      <p className="mt-2 self-center">
         {status === 'succeeded' && '✅ Payment succeeded!'}
         {status === 'processing' && '⏳ Payment processing...'}
         {status === 'requires_payment_method' && '❌ Payment failed, please try again.'}
         {status === 'unknown' && '⚙️ Checking payment status...'}
       </p>
+      </div>
     </div>
   )
 }

@@ -76,14 +76,17 @@ if(!LikeMes.readAt){
     <div className="flex flex-grow max-w-[400px] min-h-0">
       <div className="flex flex-col flex-grow p-3 min-h-0">
         <h1 className="text-xl flex self-center mb-3">Notification lists</h1>
-        <div className="flex">
+        <div className="flex flex-col">
           <div className="flex flex-grow">
             <div className="flex flex-grow">
-              <button className="flex items-center gap-2 bg-gray-100 rounded-2xl px-2 py-1 hover:ring-1 ring-black" onClick={() => setPanel(prev => prev = "reply")}><FaRegCommentDots /> Reply</button>
+              <button className={`flex items-center gap-2 bg-gray-100 rounded-2xl cursor-pointer px-2 py-1  ${panel==="reply" && "ring-black ring-1" }`} onClick={() => setPanel(prev => prev = "reply")}><FaRegCommentDots /> Reply</button>
             </div>
             <div className="flex flex-grow">
-              <button className="flex items-center gap-2 bg-gray-100 rounded-2xl px-2 py-1 hover:ring-1 ring-black" onClick={() => setPanel(prev => prev = "commentlike")}><FcLikePlaceholder />Comment like</button>
+              <button className={`flex items-center gap-2 bg-gray-100 rounded-2xl cursor-pointer px-2 py-1 ${panel==="commentlike" && "ring-black ring-1"}`} onClick={() => setPanel(prev => prev = "commentlike")}><FcLikePlaceholder />Comment like</button>
             </div>
+          </div>
+          <div className="relative h-1">
+          <div className={`absolute top-[100%] w-[40px] h-[2px] bg-black ${panel==="reply"? "left-[5%]" : "left-[56%]"} transition-[left] duration-400 ease-in-out`}></div>
           </div>
         </div>
         <div className="flex flex-col flex-1 border-1 border-gray-300 rounded-xl mt-2 p-1 min-h-0">
@@ -92,7 +95,8 @@ if(!LikeMes.readAt){
             (
               replyHistory.map(reply => (
 
-                <div className="flex border-b-1 border-gray-200 gap-2 py-2 cursor-pointer"
+                <div  key={reply.commentId}
+                  className="flex border-b-1 border-gray-200 gap-2 py-2 cursor-pointer"
                   onClick={()=>openReply(reply)}         
                 >
                  
@@ -113,7 +117,8 @@ if(!LikeMes.readAt){
           {panel === "commentlike" && 
           (commentLikeHistpry.map(like=>(
 
-            <div className="flex border-b-1 border-gray-200 gap-2 py-2 cursor-pointer"
+            <div key={like.commentId}
+            className="flex border-b-1 border-gray-200 gap-2 py-2 cursor-pointer"
             onClick={()=>openLike(like)}
             >
                <RxAvatar className="w-8 h-8 " />
