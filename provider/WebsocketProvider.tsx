@@ -143,8 +143,6 @@ export function WebsocketProvider({ url, auth, children }: { url: string, auth: 
 
       lastSeenRef.current = Date.now();
       startWatchdog();
-
-      console.log("connect successfully")
     }
 
     ws.onmessage = (e) => {
@@ -152,7 +150,7 @@ export function WebsocketProvider({ url, auth, children }: { url: string, auth: 
       if (typeof e.data === "string") {
         try {
           const msg = JSON.parse(e.data);
-          console.log("data", msg)
+          //console.log("data", msg)
           if (msg?.type === "ping" ||  msg?.type === "connection") {
             ws.send(JSON.stringify({ type: "pong", ts: Date.now() }));
             return;
@@ -173,7 +171,7 @@ export function WebsocketProvider({ url, auth, children }: { url: string, auth: 
     }
     ws.onclose = (e) => {
       setConnected(false);
-      console.log("disconnected", e.code, e.reason)
+      //console.log("disconnected", e.code, e.reason)
       clearTimers();
       wsRef.current = null;
       const shouldReconnect = !closedByAppRef.current && auth &&
@@ -196,7 +194,7 @@ export function WebsocketProvider({ url, auth, children }: { url: string, auth: 
       setConnected(false);
     }
     return () => {
-      console.log("[WS] effect CLEANUP", { t: Date.now() });
+      //console.log("[WS] effect CLEANUP", { t: Date.now() });
       closedByAppRef.current = true;
       clearTimers();
       const s = wsRef.current;

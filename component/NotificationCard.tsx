@@ -73,7 +73,7 @@ if(!LikeMes.readAt){
     });
   }, [router])
   return (
-    <div className="flex flex-grow max-w-[400px] min-h-0">
+    <div className="hidden flex-grow max-w-[400px] min-h-0 sm:flex">
       <div className="flex flex-col flex-grow p-3 min-h-0">
         <h1 className="text-xl flex self-center mb-3">Notification lists</h1>
         <div className="flex flex-col">

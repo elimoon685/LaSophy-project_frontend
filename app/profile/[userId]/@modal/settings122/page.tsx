@@ -23,8 +23,6 @@ export default function SettingsModal() {
     bio:"",
   })
   const raw = localStorage.getItem("userInfo")
- 
-  console.log("userinfo", raw)
   const handleUpdateInfo=async()=>{
        const response=await ProfileApi.userInfoUpdate(updateInfo)
        closeModal();

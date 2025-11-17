@@ -143,7 +143,9 @@ const Navbar = ({ auth }: { auth: boolean }) => {
                 >
                   <div className="relative inline-block">
                     <RxAvatar className="mr-1.5 h-8 w-8" />
+                    { unReadMesCount>0 && 
                     <span className="absolute bg-red-500 rounded-full -top-[35%] left-[40%] text-[12px] text-center px-1.5 ">{unReadMesCount}</span>
+                    }
                   </div>
                   <span className="font-libre">{user?.userName}</span>
                   {

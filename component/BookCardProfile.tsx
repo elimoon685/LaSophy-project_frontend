@@ -25,8 +25,6 @@ function BookCardProfile<T extends BookCardCore>({ value, setValue, current, mod
   useEffect(() => {
     if (!openDot) return;  
     const handleMenuOnBlur = (e: MouseEvent) => {
-      console.log("target", e.target)
-      console.log("red", refMenu)
       if (refMenu.current && !refMenu.current.contains(e.target as Node)) {
         setOpenDot(false)
       }

@@ -20,7 +20,7 @@ const UserLikeOrCollects=({bookLikeList, bookCollectList, setBookLikeList,  setB
     const [panel, setPanel]=useState<"booklike"|"bookcollect">("booklike")
     return (
         <div className="flex flex-col flex-grow min-h-0">
-            <div className="flex flex-col w-fit">
+            <div className="flex flex-col w-fit ml-4 sm:ml-1">
             <div className="flex gap-8 mt-2">
             <button className={`flex px-2 py-1 bg-gray-100 rounded-2xl items-center gap-2 ${panel==="booklike" && "ring-black ring-1" }`} onClick={()=>setPanel(prev=>prev="booklike")}><FaRegHeart/>
              Like

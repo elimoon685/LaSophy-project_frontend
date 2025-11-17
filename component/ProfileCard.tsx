@@ -42,7 +42,7 @@ const ProfileCard = ({userId, showEditButton, userStateInfo}:ProfileCardPros) =>
         <div className="flex flex-grow items-center">
        <h1 className="text-4xl font-bold flex-grow">{userStateInfo.userName}</h1>
        {showEditButton && 
-       <button className="flex items-center border border-gray-400 rounded-3xl px-2 py-1 gap-2 cursor-pointer"
+       <button className="ml-2 flex items-center border border-gray-400 rounded-3xl px-2 py-1 gap-2 cursor-pointer"
               onClick={openProfile}
       ><GoGear className="w-5 h-5"/> <span className="whitespace-nowrap">Edit profile</span></button>
        }

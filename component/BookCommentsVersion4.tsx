@@ -167,7 +167,6 @@ const RenderCommentNote = React.memo(function RenderCommentNote({ rootParent, us
   useEffect(() => {
     if (activeDeleteMenu == undefined) return;
     const handleMenuOnBlur = (e: MouseEvent) => {
-      console.log(btnRefs.current[activeDeleteMenu])
       if (btnRefs.current[activeDeleteMenu] && !btnRefs.current[activeDeleteMenu].contains(e.target as Node)) {
         setActiveDeleteMenu(undefined)
       }

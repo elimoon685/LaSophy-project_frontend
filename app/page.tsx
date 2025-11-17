@@ -34,7 +34,6 @@ export default function Home() {
     if (!el) return;
     const hovering = [...document.querySelectorAll(':hover')]
     if (hovering.includes(el)) {
-      console.log("hoverContent", hovering)
       setHover(true)
     }
   }, [])

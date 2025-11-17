@@ -54,7 +54,6 @@ const Profile = () => {
             NotificationApi.userReplyHistory(),
             NotificationApi.userCommlikeHistory(),
           ]);
-          console.log("replydata", replyResponse.data.data)
           setReplyHistory(replyResponse.data.data)
           setCommentLikeHistory(commentLikeResponse.data.data)
           
