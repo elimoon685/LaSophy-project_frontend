@@ -57,6 +57,7 @@ const BookArea= ()=>{
             const response= await BookApi.getBooksInfoByBookId(bookId)
             const commentResponse=await BookApi.getBookCommentsByBookId(bookId);
             const bookComments=commentResponse.data.data;
+            console.log("comment",bookComments)
             const commentLikesStructure=flattenCommentLikes(bookComments);
             setBooksInfo(response.data.data)
             setBookComments(bookComments)

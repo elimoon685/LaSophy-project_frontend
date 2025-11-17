@@ -41,7 +41,6 @@ const Profile = () => {
       const isSelf = loginUserId !== null && loginUserId === userId;
       
         const response = await ProfileApi.getUserInfo(userId)
-        console.log(response.data)
         setuserInfo({userName:response.data.data.userName,
         email:response.data.data.email,
         bio:response.data.data.bio,
@@ -55,12 +54,11 @@ const Profile = () => {
             NotificationApi.userReplyHistory(),
             NotificationApi.userCommlikeHistory(),
           ]);
+          console.log("replydata", replyResponse.data.data)
           setReplyHistory(replyResponse.data.data)
           setCommentLikeHistory(commentLikeResponse.data.data)
           
         }
-        //const replyResponse=await NotificationApi.userReplyHistory()
-        //const commentLikeResponse=await NotificationApi.userCommlikeHistory()
         const bookLikeRespons=await LikeOrCollectApi.getAllBookLikeByUserId(userId);
         const bookCollectRespons=await LikeOrCollectApi.getAllBookCollectByUserId(userId)
         setBookLikeList(bookLikeRespons.data.data)
