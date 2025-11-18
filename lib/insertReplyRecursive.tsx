@@ -17,15 +17,5 @@ export function insertReplyRecursive(comments:GetCommentResponse[], parentId:num
     })
 }
 
- function DeletetReply(comments:GetCommentResponse[], deleteId:number):GetCommentResponse[]{
-
-       return comments
-        .filter(comment=>comment.commentsId!==deleteId)
-        .map(comment=>({
-            ...comment,
-            replies:DeletetReply(comment.replies, deleteId)
-        })) 
-    }
-        
 
 

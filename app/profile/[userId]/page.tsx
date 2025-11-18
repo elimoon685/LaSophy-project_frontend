@@ -14,12 +14,14 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";
 import { setUserInfo } from "@/store/slices/userInfo";
 import { GetUserBookLikeResponse ,GetUserBookCollectResponse} from "@/inference/UserResponseType";
+import toast from "react-hot-toast";
+import axios from "axios";
+
 type UserInfo = { userId: string; userName: string };
 
 const Profile = () => {
   type RouteParams = { userId: string };
   const { userId } = useParams<RouteParams>();
-  const params = useParams();
   const dispatch = useDispatch<AppDispatch>();
   const [replyHistory, setReplyHistory]=useState<GetUserReplyHistoryResponse[]>([])
   const [commentLikeHistory, setCommentLikeHistory]=useState<GetUserCommentLikeHistoryResponse[]>([])
@@ -27,7 +29,6 @@ const Profile = () => {
   const [bookCollectList, setBookCollectList]=useState<GetUserBookCollectResponse[]>([])
   const [isCurrentUser, setIsCurrentUser]=useState<boolean>(false)
   const [userInfo, setuserInfo]=useState<GetUserInfoResponse>({userName:"", email:"", bio:"", createdAt:""})
-  const [isLoading, setIsloading]=useState<boolean>(false)
   useEffect(() => {
     const fetchUserInfo = async () => {
       try { 
@@ -63,7 +64,16 @@ const Profile = () => {
         setBookLikeList(bookLikeRespons.data.data)
         setBookCollectList(bookCollectRespons.data.data)
        
-      } catch (err: any) {
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err) && err.response) {
+          if (err.response.status === 401) {
+            toast.error("Please log in first.");
+          } else {
+            toast.error("Something went wrong. Please try again.");
+          }
+        } else {
+          toast.error("Something went wrong. Please try again.");
+        }
       }
     }
     fetchUserInfo();

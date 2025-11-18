@@ -8,6 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
 import { JwtPayload } from "@/inference/UserResponseType";
 import toast from "react-hot-toast";
+import axios from "axios";
 const Upload = () => {
   type AuthStatus = 'checking' | 'authed' | 'unauth';
   const [uploadFormData, setUploadFormData] = useState<UploadFormData>({
@@ -19,9 +20,8 @@ const Upload = () => {
   })
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | undefined>(undefined);
+
   const [fileStatus, setFileStatus] = useState<string | null>(null)
-  const [cover, setCover] = useState<File | undefined>(undefined);
   const [coverStatus, setCoverStatus] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState<AuthStatus>("checking");
   const [count, setCount]=useState<number>(5)
@@ -130,16 +130,23 @@ const Upload = () => {
       if (uploadFormData.IMG) {
         formData.append("IMG", uploadFormData.IMG);
       }
-      try {
+      
         const response = await UploadApi.adminUpload(formData)
         if (response.status === 200) {
           toast.success(response.data.message)
         }
-      } catch (err: any) {
-        toast.error(err.ErrorMessage)
+      
+    } catch (err:unknown) {
+      if (axios.isAxiosError(err) && err.response) {
+        if (err.response.status === 401) {
+          toast.error("Unauthorized role, please switch role or register new account with admin role");
+        } else {
+          const errorData = err.response?.data as { ErrorMessage?: string };
+          toast.error( errorData?.ErrorMessage ??  "Upload failed, please try again.");
+        }
+      } else {
+        toast.error("Something went wrong. Please try again.");
       }
-    } catch (error: any) {
-
     }
   }
   if (isLoading === 'checking') {

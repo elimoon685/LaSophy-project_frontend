@@ -7,6 +7,7 @@ import Authapi from "@/api/login"
 import { useRouter } from 'next/navigation';
 import toast from "react-hot-toast";
 import { NotificationApi } from "@/api/notification";
+import axios from "axios";
 const ForgetPassword = () => {
   const router = useRouter();
   const [enterEmail, setEnterEmail] = useState('')
@@ -15,19 +16,24 @@ const ForgetPassword = () => {
     (async () => {
       try {
         await NotificationApi.activateNotificationApi();
-      } catch (e: any) {
+      } catch{
       }
     })()
   }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const resposne = await Authapi.verifyEmail(enterEmail)
+      await Authapi.verifyEmail(enterEmail)
       dispatch(setEmail(enterEmail));
       router.replace("/check-email")
-    } catch (err: any) {
-      const error = err.response?.data;
-      toast.error(error.ErrorMessage)
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const errorData = err.response?.data as { ErrorMessage?: string };
+        toast.error(errorData?.ErrorMessage ?? "Verfify failed");
+      } else {
+        toast.error("Unexpected error");
+      }
     }
   }
   return (

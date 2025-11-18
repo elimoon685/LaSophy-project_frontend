@@ -1,4 +1,4 @@
-import type { Appearance, StripeElementsOptions } from "@stripe/stripe-js";
+import type { Appearance} from "@stripe/stripe-js";
 
 export const stripeAppearance: Appearance = {
     theme: "night",

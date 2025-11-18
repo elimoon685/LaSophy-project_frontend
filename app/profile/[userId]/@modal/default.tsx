@@ -1,5 +1,5 @@
 'use client';
-import { useSearchParams, useRouter, useParams } from 'next/navigation';
+import { useSearchParams, useRouter} from 'next/navigation';
 import { RiCloseCircleLine } from "react-icons/ri";
 import { useSelector } from 'react-redux';
 import { RootState } from "@/store/store";
@@ -9,10 +9,7 @@ import ProfileApi from '@/api/profile';
 import { AppDispatch } from "@/store/store";
 import { setBio } from "@/store/slices/userInfo";
 import { useDispatch } from "react-redux";
-type UserInfo = {
-  userId: string;
-  userName: string;
-};
+
 
 export default function DefaultModal() {
   const sp = useSearchParams();
@@ -30,9 +27,8 @@ export default function DefaultModal() {
   const handleUpdateInfo = async () => {
     dispatch(setBio(updateInfo.bio))
     try {
-      const response = await ProfileApi.userInfoUpdate(updateInfo)
-    } catch (err) {
-
+      await ProfileApi.userInfoUpdate(updateInfo)
+    } catch {
     }
     closeModal();
   }

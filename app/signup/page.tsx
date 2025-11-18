@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link';
-import { useMemo, useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SignUpFormData } from '@/inference/UserRequestType';
 import Authapi from '@/api/login';
@@ -8,13 +8,12 @@ import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import toast from "react-hot-toast";
 import PasswordRequirements from '@/component/PasswordRequirements';
 import { getPasswordChecks } from '@/lib/checkPassword';
-
+import axios from "axios";
 
 const Singup = () => {
   const [showPassword, setShowPassword] = useState({ password: false, confirmpassword: false })
   const router = useRouter();
   const [passwordFocus, setPasswordFocus] = useState<boolean>(false)
-  const [show, setShow] = useState(false);
   const [formData, setformData] = useState<SignUpFormData>({
     email: "",
     username: "",
@@ -24,19 +23,6 @@ const Singup = () => {
   const checks = useMemo(() => getPasswordChecks(formData.password), [formData.password]);
   const passwordValid = Object.values(checks).every(Boolean);
 
-  useEffect(() => {
-    if (passwordFocus) {
-      const t = window.setTimeout(() => setShow(true), 1000);
-      return () => {
-        if (t !== undefined) {
-          window.clearTimeout(t);
-
-        }
-      }
-    } else {
-      setShow(false);
-    }
-  }, [passwordFocus])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,12 +40,12 @@ const Singup = () => {
           router.push("/login");
         }, 1000)
       }
-    } catch (err: any) {
-      if (err.response?.status === 400) {
-
-        toast.error(err.response?.ErrorMessage)
-      } else if (err.response?.status === 500) {
-        toast.error("Something went wrong. Please try again.")
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const errorData = err.response?.data as { ErrorMessage?: string };
+        toast.error(errorData?.ErrorMessage ?? "Register failed");
+      } else {
+        toast.error("Unexpected error");
       }
     }
   }

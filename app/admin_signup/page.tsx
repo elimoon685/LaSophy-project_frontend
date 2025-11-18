@@ -5,9 +5,10 @@ import Link from "next/link"
 import Authapi from "@/api/login"
 import { useRouter } from 'next/navigation';
 import toast from "react-hot-toast";
-import PasswordRequirements from "@/component/PasswordRequirements"
+import PasswordRequirements from "@/component/PasswordRequirements";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
-import { getPasswordChecks } from "@/lib/checkPassword"
+import { getPasswordChecks } from "@/lib/checkPassword";
+import axios from "axios";
 const AdminSignUp = () => {
   const router = useRouter();
   const [passwordFocus, setPasswordFocus]=useState<boolean>(false)
@@ -37,9 +38,13 @@ const AdminSignUp = () => {
         }, 1000)
       }
     }
-    catch (err: any) {
-      const error = err.response?.data;
-      toast.error(error.ErrorMessage)
+    catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const errorData = err.response?.data as { ErrorMessage?: string };
+        toast.error(errorData?.ErrorMessage ?? "Register failed");
+      } else {
+        toast.error("Unexpected error");
+      }
     }
   }
   return (

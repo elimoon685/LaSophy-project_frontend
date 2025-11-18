@@ -1,4 +1,4 @@
-import { Params, ParamValue } from "next/dist/server/request/params";
+import { ParamValue } from "next/dist/server/request/params";
 export interface UploadFormData{
         
     BookName:string;

@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import { jwtDecode } from "jwt-decode";
 import { JwtPayload } from "@/inference/UserResponseType";
+import axios from "axios";
 const Login = () => {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -36,7 +37,7 @@ const Login = () => {
       if (response.status === 200) {
         const token=response.data.data.token;
         const userName=response.data.data.username
-        const res=await fetch(`https://lasophynotificationapi-adc7atgxdsbmc9ff.australiasoutheast-01.azurewebsites.net/api/Websocket/auth/ws-cookie`,
+        await fetch(`https://lasophynotificationapi-adc7atgxdsbmc9ff.australiasoutheast-01.azurewebsites.net/api/Websocket/auth/ws-cookie`,
           {method:"POST",
            headers:{Authorization:`Bearer ${token}`},
            credentials:"include",
@@ -51,9 +52,13 @@ const Login = () => {
         router.push("/")
       }
     }
-    catch (err: any) {
-      const error = err.response?.data;
-      toast.error(error.ErrorMessage)
+    catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const errorData = err.response?.data as { ErrorMessage?: string };
+        toast.error(errorData?.ErrorMessage ?? "Login failed");
+      } else {
+        toast.error("Unexpected error");
+      }
     }
   }
   return (
@@ -128,7 +133,7 @@ const Login = () => {
               Log in
             </button>
           </form>
-          <p className='text-center'>Don't have an account? <Link href="/signup" className="text-shadow-black hover:underline hover:font-bold">Sign up</Link></p>
+          <p className='text-center'>{"Don't have an account? "}<Link href="/signup" className="text-shadow-black hover:underline hover:font-bold ml-1">Sign up</Link></p>
         </div>
       </div>
     </div>

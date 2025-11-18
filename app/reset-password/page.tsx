@@ -7,10 +7,9 @@ import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import Authapi from "@/api/login";
 import toast from "react-hot-toast";
 import PasswordRequirements from "@/component/PasswordRequirements";
-import { NotificationApi } from "@/api/notification";
 import { getPasswordChecks } from "@/lib/checkPassword";
+import axios from "axios";
 const ResetPassword = () => {
-  //const email = useSelector((state: RootState) => state.email.email);
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const email = searchParams.get('email');
@@ -42,15 +41,19 @@ const ResetPassword = () => {
     return () => window.clearInterval(timeTick);
   }, [countDown])
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if(!passwordValid) return toast.error("Check requirements of password")
     try {
-      const resposne = await Authapi.resetPassword(newPassword)
+      await Authapi.resetPassword(newPassword)
       setShowCountDown(true)
-    } catch (err: any) {
-      const error = err.response?.data;
-      toast.error(error.ErrorMessage)
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const errorData = err.response?.data as { ErrorMessage?: string };
+        toast.error(errorData?.ErrorMessage ?? "Password updated failed");
+      } else {
+        toast.error("Unexpected error");
+      }
     }
 
   }

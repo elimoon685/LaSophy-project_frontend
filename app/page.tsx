@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { RxMoon } from "react-icons/rx";
 import { FaHeart } from "react-icons/fa";
 import { useState, useEffect, useRef } from "react";
-import { UnifrakturMaguntia, IM_Fell_English } from 'next/font/google';
 import { MdOutlineArrowBackIosNew } from "react-icons/md";
 import { MdOutlineArrowForwardIos } from "react-icons/md";
 import { BsFillPeopleFill } from "react-icons/bs";
@@ -14,17 +13,15 @@ export default function Home() {
   const imgPath = ["/aboutImage.png", "/donateImage.png", "/joinUsImage.png"]
   const imgHover = useRef<HTMLDivElement>(null)
   const [index, setIndex] = useState<number>(0)
-  const [hover, setHover] = useState<Boolean>(false)
-
+  const [hover, setHover] = useState<boolean>(false)
   const next = () => setIndex(i => (i + 1) % imgPath.length);
   const pre = () => setIndex(i => (i - 1 + imgPath.length) % imgPath.length);
   const mouseEnter = () => setHover(true)
   const mouseLeave = () => setHover(false)
 
   useEffect(() => {
-    if (hover === false) {
-      var timer = window.setInterval(() => setIndex(i => (i + 1) % imgPath.length), 2000)
-    }
+    if (hover) return;
+      const timer = window.setInterval(() => setIndex(i => (i + 1) % imgPath.length), 2000)
     return () => clearInterval(timer)
   }, [router, hover])
 
