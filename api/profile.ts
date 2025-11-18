@@ -1,6 +1,5 @@
 import { apiClient } from "@/lib/apiClient";
 import { Response } from "@/inference/ApiResponse";
-import { UserIdDataForm } from "@/inference/UserRequestType";
 import { GetUserInfoResponse } from "@/inference/UserResponseType";
 import { UpdateUserInfoFormData } from "@/inference/UserRequestType";
 const ProfileApi={

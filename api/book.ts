@@ -1,7 +1,7 @@
 import { apiBook } from "@/lib/apiClient";
 import { Response } from "@/inference/ApiResponse";
 import { GetBookInfoResponse, GetAllBooksInfoResponse, GetCommentResponse} from "@/inference/BookCommentResponseType";
-import { CommentDataForm, PdfPathDataForm} from "@/inference/BookCommentRequestType";
+import { CommentDataForm} from "@/inference/BookCommentRequestType";
 
 const BookApi={
 

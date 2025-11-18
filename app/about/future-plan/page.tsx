@@ -62,10 +62,10 @@ const FuturePlan = () => {
           </div>
 
         </div>
-        <div className="mt-5 ml-10 max-w-[1000px] mb-10 overflow-auto shadow-lg drop-shadow-md shadow-black/30 py-5 px-5">
-          <p className="font-libre text-2xl indent-8">Right now, this website only has one section—the literature reading section—where you can bookmark, like, and comment on works. My energy is limited, and perhaps also because I’m not yet very skilled in the technical side, I can’t write or build very quickly, haha. But I will do my best to keep working on it.</p>
+        <div className="mt-5 ml-10 max-w-[1000px] mb-10 overflow-auto py-5 px-5">
+          <p className="font-libre text-xl indent-8">Right now, this website only has one section—the literature reading section—where you can bookmark, like, and comment on works. My energy is limited, and perhaps also because I’m not yet very skilled in the technical side, I can’t write or build very quickly, haha. But I will do my best to keep working on it.</p>
           <br></br>
-          <p className="font-libre text-2xl indent-8">In the future, I’d like to add a section on ancient scripts, covering a wide range of characters, reading methods, and comparisons of meanings across different historical periods. I believe that if I can make it happen, it will be amazing. But of course, that means I’ll have to learn a lot more things first, haha.</p>
+          <p className="font-libre text-xl indent-8">In the future, I’d like to add a section on ancient scripts, covering a wide range of characters, reading methods, and comparisons of meanings across different historical periods. I believe that if I can make it happen, it will be amazing. But of course, that means I’ll have to learn a lot more things first, haha.</p>
         </div>
       </div>
     </>
