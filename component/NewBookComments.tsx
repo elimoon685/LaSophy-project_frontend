@@ -115,7 +115,7 @@ const NewBookComments = ({bookId, bookComments, setBookComments, userId}:NewBook
           <div className="flex flex-col flex-grow ml-3">
             <div className="flex items-center gap-5">
               <span className="text-m font-bold">@{comment.createdBy}</span>
-              <span className="text-sm font-bold text-gray-500">{timeAgo(comment.createdAt)}</span>
+              <span className="text-sm font-bold text-gray-500">{timeAgo(comment.createdAtUtc)}</span>
             </div>
             <p>{depth > 1 && <span className="text-gray-600 text-sm font-bold">Reply @{parent?.createdBy}:</span>}{comment.content}</p>
             <div className="flex self-end items-center gap-5">
